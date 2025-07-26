@@ -3,6 +3,11 @@
 .env.local
 .env.production
 
+# Demo files
+demo_live_db.py
+fastapi_live_demo.py
+simple_demo.py
+
 # Python
 __pycache__/
 *.py[cod]
