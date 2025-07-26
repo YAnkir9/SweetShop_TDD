@@ -1,24 +1,76 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy.orm import DeclarativeBase
+from typing import AsyncGenerator
 from .config import settings
 
+
+class Base(DeclarativeBase):
+    """Base class for all database models"""
+    pass
+
+
+# Convert PostgreSQL URL to async version
+def get_async_database_url(url: str) -> str:
+    """Convert sync PostgreSQL URL to async URL"""
+    if url.startswith("postgresql://"):
+        return url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    elif url.startswith("postgres://"):
+        return url.replace("postgres://", "postgresql+asyncpg://", 1)
+    return url
+
+
 # Database URL
-SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
+SQLALCHEMY_DATABASE_URL = get_async_database_url(settings.DATABASE_URL)
 
-# Create SQLAlchemy engine
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+# Create async SQLAlchemy engine
+engine = create_async_engine(
+    SQLALCHEMY_DATABASE_URL,
+    echo=settings.DEBUG,  # Log SQL queries in debug mode
+    future=True,  # Use SQLAlchemy 2.0 style
+    pool_pre_ping=True,  # Verify connections before use
+    pool_recycle=300,  # Recycle connections every 5 minutes
+)
 
-# Create SessionLocal class
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# Create async session factory
+async_session = async_sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False,  # Don't expire objects after commit
+    autoflush=False,
+    autocommit=False,
+)
 
-# Create Base class for declarative models
-Base = declarative_base()
 
-# Dependency to get database session
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# Dependency to get async database session
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    """
+    Async dependency that provides database session.
+    Automatically handles session cleanup and rollback on errors.
+    """
+    async with async_session() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()
+
+
+# Database utility functions
+async def create_tables():
+    """Create all database tables"""
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+
+async def drop_tables():
+    """Drop all database tables (for testing)"""
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+
+
+async def close_db():
+    """Close database engine (for shutdown)"""
+    await engine.dispose()
