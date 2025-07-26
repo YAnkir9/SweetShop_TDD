@@ -9,7 +9,6 @@ class Base(DeclarativeBase):
     pass
 
 
-# Convert PostgreSQL URL to async version
 def get_async_database_url(url: str) -> str:
     """Convert sync PostgreSQL URL to async URL"""
     if url.startswith("postgresql://"):
@@ -19,29 +18,25 @@ def get_async_database_url(url: str) -> str:
     return url
 
 
-# Database URL
 SQLALCHEMY_DATABASE_URL = get_async_database_url(settings.DATABASE_URL)
 
-# Create async SQLAlchemy engine
 engine = create_async_engine(
     SQLALCHEMY_DATABASE_URL,
-    echo=settings.DEBUG,  # Log SQL queries in debug mode
-    future=True,  # Use SQLAlchemy 2.0 style
-    pool_pre_ping=True,  # Verify connections before use
-    pool_recycle=300,  # Recycle connections every 5 minutes
+    echo=settings.DEBUG,
+    future=True,
+    pool_pre_ping=True,
+    pool_recycle=300,
 )
 
-# Create async session factory
 async_session = async_sessionmaker(
     bind=engine,
     class_=AsyncSession,
-    expire_on_commit=False,  # Don't expire objects after commit
+    expire_on_commit=False,
     autoflush=False,
     autocommit=False,
 )
 
 
-# Dependency to get async database session
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """
     Async dependency that provides database session.
@@ -58,15 +53,20 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
             await session.close()
 
 
-# Database utility functions
 async def create_tables():
-    """Create all database tables"""
+    """Create all database tables and triggers"""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+    
+    from .triggers import create_triggers
+    await create_triggers()
 
 
 async def drop_tables():
-    """Drop all database tables (for testing)"""
+    """Drop all database tables and triggers (for testing)"""
+    from .triggers import drop_triggers
+    await drop_triggers()
+    
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 

@@ -4,18 +4,13 @@ from typing import List
 import os
 
 class Settings(BaseSettings):
-    """
-    Application settings loaded from environment variables and .env file.
-    Uses Pydantic BaseSettings for automatic validation and type conversion.
-    """
+    """Application settings loaded from environment variables and .env file."""
     
-    # Database settings
     DATABASE_URL: str = Field(
         default="postgresql://postgres:allthebest@localhost:5432/sweet_shop",
         description="PostgreSQL database connection URL"
     )
     
-    # API settings
     API_V1_STR: str = Field(default="/api/v1", description="API version 1 prefix")
     PROJECT_NAME: str = Field(default="SweetShop API", description="Project name for documentation")
     PROJECT_VERSION: str = Field(default="1.0.0", description="Project version")
@@ -24,7 +19,6 @@ class Settings(BaseSettings):
         description="Project description for API docs"
     )
     
-    # Security settings
     SECRET_KEY: str = Field(
         default="JPJW1IszbG_0L3-VCNL3SfcIpALsQY9sQeiuhFXI2_A",
         description="Secret key for JWT token signing and encryption"
@@ -34,12 +28,11 @@ class Settings(BaseSettings):
         description="JWT access token expiration time in minutes"
     )
     REFRESH_TOKEN_EXPIRE_MINUTES: int = Field(
-        default=60 * 24 * 7,  # 7 days
+        default=60 * 24 * 7,
         description="JWT refresh token expiration time in minutes"
     )
     ALGORITHM: str = Field(default="HS256", description="JWT signing algorithm")
     
-    # Environment settings
     ENVIRONMENT: str = Field(
         default="production",
         description="Application environment (development, staging, production)"
@@ -49,17 +42,14 @@ class Settings(BaseSettings):
         description="Enable debug mode for development"
     )
     
-    # CORS settings
     BACKEND_CORS_ORIGINS: List[str] = Field(
         default=["http://localhost:3000", "http://localhost:5173", "http://localhost:8080"],
         description="List of allowed CORS origins"
     )
     
-    # Server settings
     HOST: str = Field(default="0.0.0.0", description="Server host")
     PORT: int = Field(default=8000, description="Server port")
     
-    # Rate limiting
     RATE_LIMIT_PER_MINUTE: int = Field(
         default=60,
         description="Rate limit per minute for API requests"
@@ -87,7 +77,7 @@ class Settings(BaseSettings):
         """Validate access token expiration"""
         if v <= 0:
             raise ValueError("ACCESS_TOKEN_EXPIRE_MINUTES must be positive")
-        if v > 1440:  # 24 hours
+        if v > 1440:
             raise ValueError("ACCESS_TOKEN_EXPIRE_MINUTES should not exceed 24 hours (1440 minutes)")
         return v
     
@@ -143,5 +133,4 @@ class Settings(BaseSettings):
         extra="ignore"
     )
 
-# Create settings instance with validation
 settings = Settings()
