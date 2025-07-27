@@ -10,6 +10,8 @@ from sqlalchemy.orm import selectinload
 from typing import List, Optional
 from ..models.sweet import Sweet
 from ..models.category import Category
+from ..models.review import Review
+from ..models.user import User
 from ..schemas.sweet import SweetResponse
 from ..database import get_db
 
@@ -33,7 +35,10 @@ async def search_sweets(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> List[SweetResponse]:
-    query = select(Sweet).options(selectinload(Sweet.category)).where(Sweet.is_deleted == False)
+    query = select(Sweet).options(
+        selectinload(Sweet.category),
+        selectinload(Sweet.reviews)
+    ).where(Sweet.is_deleted == False)
 
     if name:
         query = query.where(Sweet.name.ilike(f"%{name}%"))
@@ -52,3 +57,51 @@ async def search_sweets(
     result = await db.execute(query.order_by(Sweet.name))
     sweets = result.scalars().all()
     return [SweetResponse.model_validate(s) for s in sweets]
+
+
+@router.get("/sweets/{sweet_id}", response_model=SweetResponse, status_code=status.HTTP_200_OK)
+async def get_sweet_detail(
+    sweet_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+) -> SweetResponse:
+    """Get detailed information about a specific sweet including reviews"""
+    # Get sweet with category
+    sweet_query = select(Sweet).options(
+        selectinload(Sweet.category)
+    ).where(Sweet.id == sweet_id, Sweet.is_deleted == False)
+    
+    sweet_result = await db.execute(sweet_query)
+    sweet = sweet_result.scalar_one_or_none()
+    
+    if not sweet:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Sweet not found"
+        )
+    
+    # Get reviews with usernames
+    reviews_query = select(Review, User).join(User).where(Review.sweet_id == sweet_id)
+    reviews_result = await db.execute(reviews_query)
+    review_user_pairs = reviews_result.all()
+    
+    # Build reviews with usernames
+    reviews = []
+    for review, user in review_user_pairs:
+        reviews.append({
+            "id": review.id,
+            "user_id": review.user_id,
+            "rating": review.rating,
+            "comment": review.comment,
+            "created_at": review.created_at,
+            "username": user.username
+        })
+    
+    # Build response
+    return SweetResponse(
+        id=sweet.id,
+        name=sweet.name,
+        price=sweet.price,
+        category=sweet.category,
+        reviews=reviews
+    )

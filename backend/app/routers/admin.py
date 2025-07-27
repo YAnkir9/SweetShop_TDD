@@ -13,6 +13,7 @@ from app.models.user import User
 from app.models.role import Role
 from app.models.sweet import Sweet
 from app.models.restock import Restock
+from app.models.sweet_inventory import SweetInventory
 from app.utils.auth import decode_access_token, get_current_user
 from app.utils.admin import require_admin_role
 from app.services.audit_service_simple import AuditService, AuditAction, log_admin_action
@@ -26,10 +27,9 @@ class RestockRequest(BaseModel):
     quantity_added: int = Field(..., gt=0, description="Quantity to add to inventory")
 
 class RestockResponse(BaseModel):
-    restock_id: int
     sweet_id: int
     quantity_added: int
-    message: str
+    admin_id: int
 
 class UserResponse(BaseModel):
     id: int
@@ -121,6 +121,21 @@ async def restock_inventory(
             detail="Sweet not found"
         )
     
+    # Update inventory quantity
+    inventory_stmt = select(SweetInventory).where(SweetInventory.sweet_id == restock_data.sweet_id)
+    inventory_result = await db.execute(inventory_stmt)
+    inventory = inventory_result.scalar_one_or_none()
+    
+    if inventory:
+        inventory.quantity += restock_data.quantity_added
+    else:
+        # Create new inventory record if doesn't exist
+        inventory = SweetInventory(
+            sweet_id=restock_data.sweet_id,
+            quantity=restock_data.quantity_added
+        )
+        db.add(inventory)
+    
     # Create restock record
     restock = Restock(
         admin_id=current_user.id,
@@ -144,8 +159,7 @@ async def restock_inventory(
     )
     
     return RestockResponse(
-        restock_id=restock.id,
         sweet_id=restock_data.sweet_id,
         quantity_added=restock_data.quantity_added,
-        message=f"Successfully restocked {restock_data.quantity_added} units"
+        admin_id=current_user.id
     )

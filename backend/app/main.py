@@ -6,6 +6,7 @@ from .routers import auth
 from .routers import sweets
 from .routers import admin
 from .routers import purchases
+from .routers import reviews
 
 
 def create_app() -> FastAPI:
@@ -20,6 +21,7 @@ def create_app() -> FastAPI:
     app.include_router(sweets.router)
     app.include_router(admin.router)
     app.include_router(purchases.router)
+    app.include_router(reviews.router)
     
     # Direct sweet endpoint for testing (Add back since router registration not working)
     from app.schemas.sweet import SweetCreate, SweetResponse
