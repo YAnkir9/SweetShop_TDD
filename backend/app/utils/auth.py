@@ -3,9 +3,17 @@ Authentication utilities for password hashing and JWT tokens
 """
 from passlib.context import CryptContext
 from jose import JWTError, jwt
+from jose.exceptions import ExpiredSignatureError
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
+from fastapi import HTTPException, Depends, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+
 from ..config import settings
+from ..database import get_db
+from ..models.user import User
 
 # Initialize password context with secure defaults
 pwd_context = CryptContext(
@@ -92,10 +100,85 @@ def decode_access_token(token: str) -> Optional[Dict[str, Any]]:
         token: JWT token to decode
         
     Returns:
-        Token payload if valid, None if invalid
+        Token payload if valid, None if invalid, "expired" if expired
     """
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
         return payload
+    except ExpiredSignatureError:
+        return "expired"
     except JWTError:
         return None
+
+
+# Initialize HTTP Bearer scheme
+security = HTTPBearer(auto_error=False)
+
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_db)
+) -> User:
+    """
+    Get current authenticated user from JWT token
+    
+    Args:
+        credentials: HTTP Bearer credentials from request header
+        db: Database session
+        
+    Returns:
+        Current authenticated user
+        
+    Raises:
+        HTTPException: If token is invalid or user not found
+    """
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Not authenticated",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    # Check if credentials are provided
+    if credentials is None:
+        raise credentials_exception
+    
+    try:
+        # Decode the token
+        payload = decode_access_token(credentials.credentials)
+        if payload == "expired":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token expired",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        elif payload is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+            
+        # Extract user info from token
+        user_id: int = payload.get("user_id")
+        if user_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+            
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Get user from database
+    result = await db.execute(select(User).filter(User.id == user_id))
+    user = result.scalar_one_or_none()
+    
+    if user is None:
+        raise credentials_exception
+        
+    return user

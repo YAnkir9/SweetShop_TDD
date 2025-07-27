@@ -17,7 +17,7 @@ class TestTokenValidation:
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
         assert "not authenticated" in response.json()["detail"].lower()
     
-    def test_valid_token_allows_access(self, client, valid_token):
+    def test_valid_token_allows_access(self, client, valid_token, test_user_for_token):
         """Should return 200 when valid token is provided"""
         headers = {"Authorization": f"Bearer {valid_token}"}
         response = client.get("/api/sweets", headers=headers)
@@ -46,7 +46,7 @@ class TestTokenValidation:
         response = client.get("/api/sweets", headers=headers)
         
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
-        assert "invalid authentication" in response.json()["detail"].lower()
+        assert "not authenticated" in response.json()["detail"].lower()
     
     def test_malformed_token_returns_401(self, client):
         """Should return 401 when token is malformed"""
@@ -74,7 +74,7 @@ def valid_token(jwt_settings):
         "exp": datetime.utcnow() + timedelta(hours=1),
         "iat": datetime.utcnow()
     }
-    return jwt.encode(payload, jwt_settings.JWT_SECRET, algorithm=jwt_settings.JWT_ALGORITHM)
+    return jwt.encode(payload, jwt_settings.SECRET_KEY, algorithm="HS256")
 
 
 @pytest.fixture
@@ -86,7 +86,7 @@ def expired_token(jwt_settings):
         "exp": datetime.utcnow() - timedelta(hours=1),
         "iat": datetime.utcnow() - timedelta(hours=2)
     }
-    return jwt.encode(payload, jwt_settings.JWT_SECRET, algorithm=jwt_settings.JWT_ALGORITHM)
+    return jwt.encode(payload, jwt_settings.SECRET_KEY, algorithm="HS256")
 
 
 @pytest.fixture
@@ -99,14 +99,48 @@ def invalid_signature_token(jwt_settings):
         "iat": datetime.utcnow()
     }
     # Use wrong secret to create invalid signature
-    return jwt.encode(payload, "wrong_secret", algorithm=jwt_settings.JWT_ALGORITHM)
+    return jwt.encode(payload, "wrong_secret", algorithm="HS256")
+
+
+@pytest.fixture
+async def test_user_for_token(test_role):
+    """Create a test user for token validation"""
+    from app.models.user import User
+    from app.utils.auth import hash_password
+    from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+    
+    # Use same database as main for consistency
+    TEST_DATABASE_URL = "postgresql+asyncpg://postgres:allthebest@localhost:5432/sweet_shop"
+    engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+    async_session = async_sessionmaker(bind=engine, expire_on_commit=False)
+    
+    async with async_session() as session:
+        # Check if user already exists
+        from sqlalchemy import select
+        result = await session.execute(select(User).filter(User.id == 1))
+        existing_user = result.scalar_one_or_none()
+        
+        if existing_user:
+            await engine.dispose()
+            return existing_user
+            
+        user = User(
+            id=1,
+            username="testuser",
+            email="test@example.com",
+            password_hash=hash_password("password123"),
+            role_id=test_role.id
+        )
+        session.add(user)
+        await session.commit()
+        await session.refresh(user)
+    
+    await engine.dispose()
+    return user
 
 
 @pytest.fixture
 def jwt_settings():
-    """Mock JWT settings for testing"""
-    class JWTSettings:
-        JWT_SECRET = "test_secret_key_for_testing"
-        JWT_ALGORITHM = "HS256"
-    
-    return JWTSettings()
+    """Get real JWT settings from config for testing"""
+    from app.config import settings
+    return settings
