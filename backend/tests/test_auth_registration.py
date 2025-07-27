@@ -1,10 +1,21 @@
 """
-Authentication tests - TDD Red Cases
+Authentication tests - TDD
 """
 import pytest
+import uuid
 from sqlalchemy import select
 
 from app.models import User
+
+
+def _generate_unique_user_data(prefix: str = "test") -> dict:
+    """Generate unique user data for testing"""
+    unique_id = str(uuid.uuid4())[:8]
+    return {
+        "username": f"{prefix}user_{unique_id}",
+        "email": f"{prefix}_{unique_id}@example.com",
+        "password": "securepassword123"
+    }
 
 
 class TestUserRegistration:
@@ -12,20 +23,9 @@ class TestUserRegistration:
     
     def test_register_user_success(self, client, test_role):
         """Should create user and return 201 with user data"""
-        import uuid
-        unique_id = str(uuid.uuid4())[:8]
-        user_data = {
-            "username": f"testuser_{unique_id}",
-            "email": f"test_{unique_id}@example.com",
-            "password": "securepassword123"
-        }
+        user_data = _generate_unique_user_data()
         
         response = client.post("/api/auth/register", json=user_data)
-        
-        # Debug: print response if it fails
-        if response.status_code != 201:
-            print(f"Response status: {response.status_code}")
-            print(f"Response body: {response.text}")
         
         assert response.status_code == 201
         data = response.json()
@@ -37,18 +37,14 @@ class TestUserRegistration:
     
     def test_register_duplicate_email_fails(self, client, test_role):
         """Should reject duplicate email with 400 error"""
-        user_data = {
-            "username": "user1",
-            "email": "duplicate@example.com",
-            "password": "securepassword123"
-        }
+        user_data = _generate_unique_user_data("duplicate")
         
-        # First registration
+        # First registration should succeed
         response1 = client.post("/api/auth/register", json=user_data)
         assert response1.status_code == 201
         
-        # Attempt duplicate email
-        user_data["username"] = "user2"
+        # Second registration with same email should fail
+        user_data["username"] = f"different_{user_data['username']}"
         response2 = client.post("/api/auth/register", json=user_data)
         
         assert response2.status_code == 400
@@ -78,22 +74,15 @@ class TestUserLogin:
     
     def test_login_user_success(self, client, test_role):
         """Should return 200 with access token for valid credentials"""
-        # First register a user
-        import uuid
-        unique_id = str(uuid.uuid4())[:8]
-        user_data = {
-            "username": f"loginuser_{unique_id}",
-            "email": f"login_{unique_id}@example.com",
-            "password": "correctpassword123"
-        }
-        
+        # Register a user first
+        user_data = _generate_unique_user_data("login")
         register_response = client.post("/api/auth/register", json=user_data)
         assert register_response.status_code == 201
         
-        # Now try to login
+        # Login with same credentials
         login_data = {
             "email": user_data["email"],
-            "password": "correctpassword123"
+            "password": user_data["password"]
         }
         
         response = client.post("/api/auth/login", json=login_data)
@@ -103,10 +92,11 @@ class TestUserLogin:
         assert "access_token" in data
         assert "token_type" in data
         assert data["token_type"] == "bearer"
+        assert "expires_in" in data
     
     def test_login_invalid_credentials(self, client):
         """Should return 401 for wrong email or password"""
-        # Nonexistent email
+        # Test with nonexistent email
         response = client.post("/api/auth/login", json={
             "email": "nonexistent@example.com",
             "password": "password123"
@@ -114,7 +104,7 @@ class TestUserLogin:
         assert response.status_code == 401
         assert "invalid credentials" in response.json()["detail"].lower()
         
-        # Wrong password
+        # Test with wrong password
         response = client.post("/api/auth/login", json={
             "email": "user@example.com",
             "password": "wrongpassword"
@@ -142,19 +132,19 @@ class TestAuthenticationFlow:
     def test_register_then_login_flow(self, client, test_role):
         """Should allow login after successful registration"""
         # Register new user
-        register_data = {
-            "username": "flowuser",
-            "email": "flow@example.com", 
-            "password": "securepassword123"
-        }
+        user_data = _generate_unique_user_data("flow")
         
-        register_response = client.post("/api/auth/register", json=register_data)
+        register_response = client.post("/api/auth/register", json=user_data)
         assert register_response.status_code == 201
         
         # Login with same credentials
         login_response = client.post("/api/auth/login", json={
-            "email": "flow@example.com",
-            "password": "securepassword123"
+            "email": user_data["email"],
+            "password": user_data["password"]
         })
         assert login_response.status_code == 200
-        assert "access_token" in login_response.json()
+        
+        token_data = login_response.json()
+        assert "access_token" in token_data
+        assert "token_type" in token_data
+        assert token_data["token_type"] == "bearer"
