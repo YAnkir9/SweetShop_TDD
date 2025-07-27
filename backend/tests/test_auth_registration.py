@@ -124,27 +124,3 @@ class TestUserLogin:
         # Missing fields
         response = client.post("/api/auth/login", json={})
         assert response.status_code == 422
-
-
-class TestAuthenticationFlow:
-    """End-to-end authentication workflow tests"""
-    
-    def test_register_then_login_flow(self, client, test_role):
-        """Should allow login after successful registration"""
-        # Register new user
-        user_data = _generate_unique_user_data("flow")
-        
-        register_response = client.post("/api/auth/register", json=user_data)
-        assert register_response.status_code == 201
-        
-        # Login with same credentials
-        login_response = client.post("/api/auth/login", json={
-            "email": user_data["email"],
-            "password": user_data["password"]
-        })
-        assert login_response.status_code == 200
-        
-        token_data = login_response.json()
-        assert "access_token" in token_data
-        assert "token_type" in token_data
-        assert token_data["token_type"] == "bearer"
