@@ -12,12 +12,24 @@ from app.models.user import User
 from app.models.role import Role
 from app.models.sweet import Sweet
 from app.models.category import Category
-from app.utils.auth import create_access_token
+from app.utils.auth import create_access_token, hash_password
 
 
 @pytest.mark.asyncio
 async def test_search_sweets_by_name(async_client: AsyncClient, test_db_session: AsyncSession):
-    # Setup: Create category and sweets
+    # Setup: Create user, category and sweets
+
+    # Create customer role
+    customer_role = Role(name="customer")
+    test_db_session.add(customer_role)
+    await test_db_session.flush()
+    role_id = customer_role.id
+
+    user = User(username="testuser", email="testuser@example.com", password_hash=hash_password("password"), role_id=role_id, is_verified=True)
+    test_db_session.add(user)
+    await test_db_session.flush()
+    user_id = user.id
+
     category = Category(name=f"BarfiCategory_{uuid.uuid4().hex[:6]}")
     test_db_session.add(category)
     await test_db_session.flush()
@@ -31,7 +43,7 @@ async def test_search_sweets_by_name(async_client: AsyncClient, test_db_session:
     await test_db_session.commit()
 
     # Token for customer
-    token = create_access_token({"sub": "1", "role": "customer"})
+    token = create_access_token({"sub": str(user_id), "role": "customer"})
 
     # Search by name
     response = await async_client.get(
@@ -47,9 +59,22 @@ async def test_search_sweets_by_name(async_client: AsyncClient, test_db_session:
 
 @pytest.mark.asyncio
 async def test_search_sweets_by_category(async_client: AsyncClient, test_db_session: AsyncSession):
-    # Setup: Create categories and sweets
-    milk_cat = Category(name="milk-based")
-    sugar_cat = Category(name="sugar-based")
+    # Setup: Create user, categories and sweets
+
+    # Create customer role
+    customer_role = Role(name="customer")
+    test_db_session.add(customer_role)
+    await test_db_session.flush()
+    role_id = customer_role.id
+
+    user = User(username="testuser2", email="testuser2@example.com", password_hash=hash_password("password"), role_id=role_id, is_verified=True)
+    test_db_session.add(user)
+    await test_db_session.flush()
+    user_id = user.id
+
+    milk_cat_name = f"milk-based-{uuid.uuid4()}"
+    milk_cat = Category(name=milk_cat_name)
+    sugar_cat = Category(name=f"sugar-based-{uuid.uuid4()}")
     test_db_session.add_all([milk_cat, sugar_cat])
     await test_db_session.flush()
 
@@ -61,23 +86,35 @@ async def test_search_sweets_by_category(async_client: AsyncClient, test_db_sess
     test_db_session.add_all(sweets)
     await test_db_session.commit()
 
-    token = create_access_token({"sub": "1", "role": "customer"})
+    token = create_access_token({"sub": str(user_id), "role": "customer"})
 
     response = await async_client.get(
-        "/api/sweets/search?category=milk-based",
+        f"/api/sweets/search?category={milk_cat_name}",
         headers={"Authorization": f"Bearer {token}"}
     )
 
     assert response.status_code == 200
     data = response.json()
     assert len(data) == 2
-    assert all(sweet["category"]["name"] == "milk-based" for sweet in data)
+    assert all(sweet["category"]["name"] == milk_cat_name for sweet in data)
 
 
 @pytest.mark.asyncio
 async def test_search_sweets_by_price_range(async_client: AsyncClient, test_db_session: AsyncSession):
-    # Setup: One category, multiple price points
-    category = Category(name="price-test")
+    # Setup: Create user, one category, multiple price points
+
+    # Create customer role
+    customer_role = Role(name="customer")
+    test_db_session.add(customer_role)
+    await test_db_session.flush()
+    role_id = customer_role.id
+
+    user = User(username="testuser3", email="testuser3@example.com", password_hash=hash_password("password"), role_id=role_id, is_verified=True)
+    test_db_session.add(user)
+    await test_db_session.flush()
+    user_id = user.id
+
+    category = Category(name=f"price-test-{uuid.uuid4()}")
     test_db_session.add(category)
     await test_db_session.flush()
 
@@ -90,7 +127,7 @@ async def test_search_sweets_by_price_range(async_client: AsyncClient, test_db_s
     test_db_session.add_all(sweets)
     await test_db_session.commit()
 
-    token = create_access_token({"sub": "1", "role": "customer"})
+    token = create_access_token({"sub": str(user_id), "role": "customer"})
 
     response = await async_client.get(
         "/api/sweets/search?min_price=60&max_price=150",
@@ -105,8 +142,21 @@ async def test_search_sweets_by_price_range(async_client: AsyncClient, test_db_s
 
 
 @pytest.mark.asyncio
-async def test_search_returns_empty_when_no_match(async_client: AsyncClient):
-    token = create_access_token({"sub": "1", "role": "customer"})
+async def test_search_returns_empty_when_no_match(async_client: AsyncClient, test_db_session: AsyncSession):
+    # Create customer role
+    customer_role = Role(name="customer")
+    test_db_session.add(customer_role)
+    await test_db_session.flush()
+    role_id = customer_role.id
+
+    user = User(username="testuser4", email="testuser4@example.com", password_hash=hash_password("password"), role_id=role_id, is_verified=True)
+
+    test_db_session.add(user)
+    await test_db_session.flush()
+    user_id = user.id
+    await test_db_session.commit()  # Ensure user is committed
+
+    token = create_access_token({"sub": str(user_id), "role": "customer"})
 
     response = await async_client.get(
         "/api/sweets/search?name=nonexistent",

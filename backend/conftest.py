@@ -1,16 +1,27 @@
+
+# Clean all tables before each test to ensure a clean DB state
+import pytest
+from app.database import Base
+from sqlalchemy import text
+@pytest.fixture(autouse=True)
+async def clean_tables(test_db_session):
+    # Truncate all tables before each test
+    for table in reversed(Base.metadata.sorted_tables):
+        await test_db_session.execute(text(f'TRUNCATE TABLE {table.name} RESTART IDENTITY CASCADE;'))
+    await test_db_session.commit()
 import pytest
 import asyncio
 from app.database import Base, get_database_url
 from sqlalchemy.ext.asyncio import create_async_engine
 
-# Ensure test DB tables are created before any tests run
-@pytest.fixture(scope="session", autouse=True)
-def setup_test_db():
+
+# Ensure test DB tables are created before any tests run (async version)
+import pytest_asyncio
+@pytest_asyncio.fixture(scope="session", autouse=True)
+async def setup_test_db():
     engine = create_async_engine(get_database_url(), echo=False)
-    async def create_all():
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-    asyncio.get_event_loop().run_until_complete(create_all())
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 """
 Pytest async fixtures for Sweet Shop
 """
@@ -90,7 +101,12 @@ async def async_client():
     from app.database import get_db
 
 
+
     app = create_app()
+    # Print all registered routes for debugging
+    print("Registered routes:")
+    for route in app.routes:
+        print(route.path)
 
     async def override_get_db():
         session_factory = get_test_session_factory()

@@ -8,14 +8,32 @@ class SweetCreate(BaseModel):
     image_url: Optional[str] = None
     description: Optional[str] = None
 
+
+
+# class SweetResponse(BaseModel):
+#     id: int
+#     name: str
+#     price: float
+#     category_id: int
+#     image_url: Optional[str] = None
+#     description: Optional[str] = None
+#     is_deleted: bool
+
+#     class Config:
+#         orm_mode = True
+
+class CategoryResponse(BaseModel):
+    id: int
+    name: str
+
+    class Config:
+        from_attributes = True  # replaces orm_mode
+
 class SweetResponse(BaseModel):
     id: int
     name: str
     price: float
-    category_id: int
-    image_url: Optional[str] = None
-    description: Optional[str] = None
-    is_deleted: bool
+    category: CategoryResponse
 
     class Config:
-        orm_mode = True
+        from_attributes = True
