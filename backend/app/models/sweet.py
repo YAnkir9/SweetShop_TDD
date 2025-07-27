@@ -5,7 +5,6 @@ from ..database import Base
 
 
 class Sweet(Base):
-    """Sweet model for products in the shop"""
     __tablename__ = "sweets"
     
     id = Column(Integer, primary_key=True, index=True)

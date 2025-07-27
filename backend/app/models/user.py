@@ -1,11 +1,10 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, func
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from ..database import Base
 
 
 class User(Base):
-    """User model with authentication and profile information"""
     __tablename__ = "users"
     
     id = Column(Integer, primary_key=True, index=True)
