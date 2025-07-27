@@ -1,16 +1,18 @@
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
 from typing import AsyncGenerator
+import logging
 from .config import settings
 
 
+
+
+
 class Base(DeclarativeBase):
-    """Base class for all database models"""
     pass
 
 
 def get_async_database_url(url: str) -> str:
-    """Convert sync PostgreSQL URL to async URL"""
     if url.startswith("postgresql://"):
         return url.replace("postgresql://", "postgresql+asyncpg://", 1)
     elif url.startswith("postgres://"):
@@ -18,14 +20,17 @@ def get_async_database_url(url: str) -> str:
     return url
 
 
-SQLALCHEMY_DATABASE_URL = get_async_database_url(settings.DATABASE_URL)
+def get_database_url() -> str:
+    return get_async_database_url(settings.DATABASE_URL)
+
+
+SQLALCHEMY_DATABASE_URL = get_database_url()
 
 engine = create_async_engine(
     SQLALCHEMY_DATABASE_URL,
     echo=settings.DEBUG,
-    future=True,
-    pool_pre_ping=True,
-    pool_recycle=300,
+    pool_size=1,
+    max_overflow=0,
 )
 
 async_session = async_sessionmaker(
@@ -38,19 +43,59 @@ async_session = async_sessionmaker(
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    """
-    Async dependency that provides database session.
-    Automatically handles session cleanup and rollback on errors.
-    """
-    async with async_session() as session:
-        try:
-            yield session
-            await session.commit()
-        except Exception:
+    session = None
+    try:
+        session = async_session()
+        # session created
+        yield session
+        await session.commit()
+        # session committed
+    except Exception as e:
+        if session:
             await session.rollback()
-            raise
-        finally:
+            # session rolled back due to error
+        raise
+    finally:
+        if session:
             await session.close()
+            # session closed
+
+
+async def get_db_with_retry() -> AsyncGenerator[AsyncSession, None]:
+    """
+    Database session with retry logic for better connectivity
+    """
+    max_retries = 3
+    retry_delay = 1.0
+    
+    for attempt in range(max_retries):
+        session = None
+        try:
+            session = async_session()
+            # Test the connection with a simple query
+            await session.execute("SELECT 1")
+            
+            try:
+                yield session
+                await session.commit()
+                break
+            except Exception as e:
+                await session.rollback()
+                # session error on attempt
+                raise
+            finally:
+                if session:
+                    await session.close()
+                
+        except Exception as e:
+            if attempt == max_retries - 1:
+                # all db connection attempts failed
+                raise
+            
+            import asyncio
+            # connection attempt failed, retrying
+            await asyncio.sleep(retry_delay)
+            retry_delay *= 2  # Exponential backoff
 
 
 async def create_tables():

@@ -1,54 +1,29 @@
-"""Admin Utilities - Helper functions for admin access control"""
-
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from jose import JWTError, jwt
 from datetime import datetime
-import logging
-
 from app.models.user import User
 from app.models.role import Role
 from app.config import settings
 
-logger = logging.getLogger(__name__)
-
-
 async def require_admin_role(token: str, db: AsyncSession) -> User:
-    """
-    Verify that the provided token belongs to an admin user.
-    
-    Args:
-        token: JWT token string
-        db: Database session
-        
-    Returns:
-        User: The admin user object
-        
-    Raises:
-        HTTPException: If token is invalid or user is not admin
-    """
-    
-    # Verify token format and decode
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         user_id: str = payload.get("sub")
         role_claim: str = payload.get("role")
-        
         if user_id is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-            
         if role_claim is None:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Role information missing",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-            
     except JWTError as e:
         error_message = str(e)
         if "expired" in error_message.lower():
@@ -82,14 +57,12 @@ async def require_admin_role(token: str, db: AsyncSession) -> User:
         # Verify role claim matches database
         if role.name != role_claim:
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
                 detail="Role verification failed",
             )
         
         # Verify user has admin role
         if role.name != "admin":
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
                 detail="Admin access required",
             )
         

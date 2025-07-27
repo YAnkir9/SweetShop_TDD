@@ -28,7 +28,7 @@ class UserRepository:
         return result.scalar_one_or_none()
     
     async def get_default_role(self) -> Role:
-        result = await self.db.execute(select(Role).filter(Role.name == "user"))
+        result = await self.db.execute(select(Role).filter(Role.name == "customer"))
         role = result.scalar_one_or_none()
         if not role:
             raise HTTPException(

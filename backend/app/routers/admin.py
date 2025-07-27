@@ -15,7 +15,7 @@ from app.models.sweet import Sweet
 from app.models.restock import Restock
 from app.utils.auth import decode_access_token, get_current_user
 from app.utils.admin import require_admin_role
-from app.services.audit_service import log_admin_action
+from app.services.audit_service_simple import AuditService, AuditAction, log_admin_action
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 security = HTTPBearer(auto_error=False)
@@ -78,9 +78,10 @@ async def get_all_users(
         ))
     
     # Log admin action
-    await log_admin_action(
+    audit_service = AuditService(db)
+    await audit_service.log_admin_action(
         admin_id=current_user.id,
-        action="VIEW_USERS",
+        action=AuditAction.VIEW_USERS,
         details={"users_count": len(users)}
     )
     
@@ -131,9 +132,10 @@ async def restock_inventory(
     await db.refresh(restock)
     
     # Log admin action
-    await log_admin_action(
+    audit_service = AuditService(db)
+    await audit_service.log_admin_action(
         admin_id=current_user.id,
-        action="RESTOCK_INVENTORY",
+        action=AuditAction.RESTOCK_INVENTORY,
         details={
             "sweet_id": restock_data.sweet_id,
             "quantity_added": restock_data.quantity_added,

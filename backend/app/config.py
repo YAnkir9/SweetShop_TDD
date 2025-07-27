@@ -4,57 +4,22 @@ from typing import List
 import os
 
 class Settings(BaseSettings):
-    """Application settings loaded from environment variables and .env file."""
-    
-    DATABASE_URL: str = Field(
-        default="postgresql://postgres:allthebest@localhost:5432/sweet_shop",
-        description="PostgreSQL database connection URL"
-    )
-    
-    API_V1_STR: str = Field(default="/api/v1", description="API version 1 prefix")
-    PROJECT_NAME: str = Field(default="SweetShop API", description="Project name for documentation")
-    PROJECT_VERSION: str = Field(default="1.0.0", description="Project version")
-    PROJECT_DESCRIPTION: str = Field(
-        default="A TDD-developed sweet shop management system",
-        description="Project description for API docs"
-    )
-    
-    SECRET_KEY: str = Field(
-        default="JPJW1IszbG_0L3-VCNL3SfcIpALsQY9sQeiuhFXI2_A",
-        description="Secret key for JWT token signing and encryption"
-    )
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(
-        default=30,
-        description="JWT access token expiration time in minutes"
-    )
-    REFRESH_TOKEN_EXPIRE_MINUTES: int = Field(
-        default=60 * 24 * 7,
-        description="JWT refresh token expiration time in minutes"
-    )
-    ALGORITHM: str = Field(default="HS256", description="JWT signing algorithm")
-    
-    ENVIRONMENT: str = Field(
-        default="production",
-        description="Application environment (development, staging, production)"
-    )
-    DEBUG: bool = Field(
-        default=False,
-        description="Enable debug mode for development"
-    )
-    
-    BACKEND_CORS_ORIGINS: List[str] = Field(
-        default=["http://localhost:3000", "http://localhost:5173", "http://localhost:8080"],
-        description="List of allowed CORS origins"
-    )
-    
-    HOST: str = Field(default="0.0.0.0", description="Server host")
-    PORT: int = Field(default=8000, description="Server port")
-    
-    RATE_LIMIT_PER_MINUTE: int = Field(
-        default=60,
-        description="Rate limit per minute for API requests"
-    )
-    
+    DATABASE_URL: str = Field(default="postgresql://postgres:allthebest@localhost:5432/sweet_shop")
+    API_V1_STR: str = Field(default="/api/v1")
+    PROJECT_NAME: str = Field(default="SweetShop API")
+    PROJECT_VERSION: str = Field(default="1.0.0")
+    PROJECT_DESCRIPTION: str = Field(default="A TDD-developed sweet shop management system")
+    SECRET_KEY: str = Field(default="JPJW1IszbG_0L3-VCNL3SfcIpALsQY9sQeiuhFXI2_A")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=30)
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = Field(default=60 * 24 * 7)
+    ALGORITHM: str = Field(default="HS256")
+    ENVIRONMENT: str = Field(default="production")
+    DEBUG: bool = Field(default=False)
+    BACKEND_CORS_ORIGINS: List[str] = Field(default=["http://localhost:3000", "http://localhost:5173", "http://localhost:8080"])
+    HOST: str = Field(default="0.0.0.0")
+    PORT: int = Field(default=8000)
+    RATE_LIMIT_PER_MINUTE: int = Field(default=60)
+
     @field_validator("DATABASE_URL")
     @classmethod
     def validate_database_url(cls, v: str) -> str:

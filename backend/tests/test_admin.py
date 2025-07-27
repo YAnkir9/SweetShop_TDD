@@ -15,10 +15,10 @@ class MockUser:
 
 @pytest.fixture
 def mock_db():
-    """Mock database session that returns expected data"""
+    # Mock database session
     mock_db = AsyncMock()
     
-    # Mock user data with proper role relationships
+    # Mock user data
     class MockRole:
         def __init__(self, id, name):
             self.id = id
@@ -33,10 +33,12 @@ def mock_db():
             self.created_at = created_at
     
     # Mock query result
+    import time
+    timestamp = int(time.time())
     mock_result = MagicMock()
     mock_result.all.return_value = [
-        (MockUserWithRole(1, "admin_user", "admin@test.com", "admin", None), MockRole(1, "admin")),
-        (MockUserWithRole(2, "customer_user", "customer@test.com", "customer", None), MockRole(2, "customer"))
+        (MockUserWithRole(1, f"admin_user_{timestamp}", f"admin_{timestamp}@sweetshop-test.com", "admin", None), MockRole(1, "admin")),
+        (MockUserWithRole(2, f"customer_user_{timestamp}", f"customer_{timestamp}@sweetshop-test.com", "customer", None), MockRole(2, "customer"))
     ]
     mock_db.execute.return_value = mock_result
     mock_db.commit = AsyncMock()
@@ -48,7 +50,7 @@ def mock_db():
 
 @pytest.fixture
 def client_with_mocked_db(mock_db):
-    """TestClient with mocked database dependency"""
+    # TestClient with mocked db
     from app.database import get_db
     
     def get_mock_db():
@@ -71,12 +73,12 @@ def client_with_mocked_db(mock_db):
 
 @pytest.fixture
 def client():
-    """Simple TestClient without database mocking for non-DB tests"""
+    # Simple TestClient for non-DB tests
     return TestClient(app)
 
 
 def create_access_token(data: dict):
-    """Create JWT token for testing"""
+    # Create JWT token for testing
     payload = data.copy()
     payload["exp"] = int(time.time()) + 3600
     return jwt.encode(payload, "your-secret-key", algorithm="HS256")
@@ -84,10 +86,12 @@ def create_access_token(data: dict):
 
 @pytest.fixture
 def admin_token():
+    import time
+    timestamp = int(time.time())
     return create_access_token(
         data={
             "sub": "1",
-            "email": "admin@test.com",
+            "email": f"admin_{timestamp}@sweetshop-test.com",
             "role": "admin"
         }
     )
@@ -95,10 +99,12 @@ def admin_token():
 
 @pytest.fixture  
 def customer_token():
+    import time
+    timestamp = int(time.time())
     return create_access_token(
         data={
-            "sub": "2",
-            "email": "customer@test.com",
+            "sub": "2", 
+            "email": f"customer_{timestamp}@sweetshop-test.com",
             "role": "customer"
         }
     )
@@ -106,29 +112,29 @@ def customer_token():
 
 @pytest.fixture
 def tampered_token():
-    """Generate token with tampered role"""
+    # Generate token with tampered role
     payload = {"sub": "1", "role": "admin", "exp": int(time.time()) + 3600}
-    # Tampering: sign with wrong secret
+    # Tampering: wrong secret
     return jwt.encode(payload, "wrong_secret", algorithm="HS256")
 
 
 @pytest.fixture
 def admin_user():
-    """Mock admin user"""
+    # Mock admin user
     return MockUser(id=1, username="admin_user", role="admin")
 
 
 @pytest.fixture
 def customer_user():
-    """Mock customer user"""
+    # Mock customer user
     return MockUser(id=2, username="customer_user", role="customer")
 
 
 class TestAdminUsersEndpoint:
-    """Test suite for admin users endpoint (/api/admin/users)"""
+    # Test suite for admin users endpoint
 
     def test_admin_can_access_users_list(self, client_with_mocked_db, admin_token):
-        """Admin token should allow access to users list"""
+        # Admin token should allow access
         response = client_with_mocked_db.get(
             "/api/admin/users",
             headers={"Authorization": f"Bearer {admin_token}"}
@@ -283,7 +289,7 @@ class TestAdminEndpointSecurity:
 
     def test_admin_actions_are_logged(self, client_with_mocked_db, admin_token):
         """Admin actions should be logged for audit trail"""
-        with patch('app.services.audit_service.log_admin_action') as mock_log:
+        with patch('app.services.audit_service_simple.log_admin_action') as mock_log:
             response = client_with_mocked_db.get(
                 "/api/admin/users",
                 headers={"Authorization": f"Bearer {admin_token}"}
