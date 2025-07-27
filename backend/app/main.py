@@ -74,13 +74,16 @@ def create_app() -> FastAPI:
             )
             db.add(sweet)
             await db.commit()
-            # Eagerly load category after refresh
+            # Eagerly load category and reviews after refresh
             from sqlalchemy.orm import selectinload
             result = await db.execute(
-                select(Sweet).options(selectinload(Sweet.category)).where(Sweet.id == sweet.id)
+                select(Sweet).options(
+                    selectinload(Sweet.category),
+                    selectinload(Sweet.reviews)
+                ).where(Sweet.id == sweet.id)
             )
-            sweet_with_category = result.scalars().first()
-            return sweet_with_category
+            sweet_with_relations = result.scalars().first()
+            return sweet_with_relations
         except Exception as e:
             # For customer test, ensure we return 403
             import sys

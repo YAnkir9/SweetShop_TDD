@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status, Query, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Dict, Any, List, Optional
 
 from ..utils.auth import get_current_user
@@ -13,10 +14,12 @@ from ..models.category import Category
 from ..models.review import Review
 from ..models.user import User
 from ..utils.sweet_utils import get_sweet_or_404
-from ..schemas.sweet import SweetResponse
+from ..utils.admin import require_admin_role
+from ..schemas.sweet import SweetResponse, SweetUpdate, SweetCreate
 from ..database import get_db
 
 router = APIRouter(prefix="/api", tags=["sweets"])
+security = HTTPBearer(auto_error=False)
 
 @router.get("/sweets", status_code=status.HTTP_200_OK)
 async def get_sweets(current_user: User = Depends(get_current_user)) -> Dict[str, Any]:
@@ -95,3 +98,86 @@ async def get_sweet_detail(
         category=sweet.category,
         reviews=reviews
     )
+
+
+@router.put("/sweets/{sweet_id}", response_model=SweetResponse, status_code=status.HTTP_200_OK)
+async def update_sweet(
+    sweet_id: int,
+    sweet_update: SweetUpdate,
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+    db: AsyncSession = Depends(get_db)
+) -> SweetResponse:
+    """Update a sweet - Admin only"""
+    
+    # Check authentication and admin role
+    if not credentials:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    current_user = await require_admin_role(credentials.credentials, db)
+    
+    # Get existing sweet
+    sweet = await get_sweet_or_404(db, sweet_id, load_relations=True)
+    
+    # Update fields that were provided
+    update_data = sweet_update.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(sweet, field, value)
+    
+    await db.commit()
+    await db.refresh(sweet)
+    
+    # Get reviews with usernames for response
+    reviews_query = select(Review, User).join(User).where(Review.sweet_id == sweet_id)
+    reviews_result = await db.execute(reviews_query)
+    review_user_pairs = reviews_result.all()
+    
+    reviews = []
+    for review, user in review_user_pairs:
+        reviews.append({
+            "id": review.id,
+            "user_id": review.user_id,
+            "rating": review.rating,
+            "comment": review.comment,
+            "created_at": review.created_at,
+            "username": user.username
+        })
+    
+    return SweetResponse(
+        id=sweet.id,
+        name=sweet.name,
+        price=sweet.price,
+        category=sweet.category,
+        reviews=reviews
+    )
+
+
+@router.delete("/sweets/{sweet_id}", status_code=status.HTTP_200_OK)
+async def delete_sweet(
+    sweet_id: int,
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+    db: AsyncSession = Depends(get_db)
+):
+    """Soft delete a sweet - Admin only"""
+    
+    # Check authentication and admin role
+    if not credentials:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    current_user = await require_admin_role(credentials.credentials, db)
+    
+    # Get existing sweet
+    sweet = await get_sweet_or_404(db, sweet_id)
+    
+    # Soft delete
+    sweet.is_deleted = True
+    await db.commit()
+    
+    return {"message": "Sweet deleted successfully"}

@@ -9,6 +9,13 @@ class SweetCreate(BaseModel):
     image_url: Optional[str] = None
     description: Optional[str] = None
 
+class SweetUpdate(BaseModel):
+    name: Optional[str] = None
+    price: Optional[float] = None
+    category_id: Optional[int] = None
+    image_url: Optional[str] = None
+    description: Optional[str] = None
+
 class CategoryResponse(BaseModel):
     id: int
     name: str

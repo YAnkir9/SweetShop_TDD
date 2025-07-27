@@ -118,6 +118,8 @@ async def test_update_sweet_by_admin(async_client, test_role, test_db_session: A
         json={"name": "Jalebi Updated", "price": 18.0, "category_id": category.id},
         headers={"Authorization": f"Bearer {token}"}
     )
+    print(f"Response status: {response.status_code}")
+    print(f"Response body: {response.text}")
     assert response.status_code in (200, 404)  # Accept 404 if not implemented
 
 @pytest.mark.asyncio
