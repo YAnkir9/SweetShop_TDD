@@ -69,6 +69,17 @@ async def test_db_session() -> AsyncGenerator[AsyncSession, None]:
             await session.rollback()
 
 
+@pytest.fixture
+async def async_db_session() -> AsyncGenerator[AsyncSession, None]:
+    """Alias for test_db_session to match expected fixture name in tests"""
+    session_factory = get_test_session_factory()
+    async with session_factory() as session:
+        try:
+            yield session
+        finally:
+            await session.rollback()
+
+
 
 
 
@@ -80,9 +91,6 @@ async def async_client():
 
 
     app = create_app()
-    print("\nRegistered routes in test app:")
-    for route in app.routes:
-        print(f"{route.path} [{','.join(route.methods)}] {route.name if hasattr(route, 'name') else ''}")
 
     async def override_get_db():
         session_factory = get_test_session_factory()
