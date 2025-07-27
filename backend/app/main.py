@@ -2,7 +2,7 @@
 FastAPI application with clean architecture
 """
 from fastapi import FastAPI
-from .routers import auth, sweets
+from .routers import auth, sweets, admin
 
 
 def create_app() -> FastAPI:
@@ -15,6 +15,7 @@ def create_app() -> FastAPI:
     # Include routers
     app.include_router(auth.router)
     app.include_router(sweets.router)
+    app.include_router(admin.router)
     
     @app.get("/")
     async def root():
