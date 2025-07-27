@@ -1,3 +1,19 @@
+import pytest_asyncio
+from app.models.role import Role
+
+# Ensure required roles exist before every test (handles truncation)
+@pytest_asyncio.fixture(autouse=True)
+async def ensure_roles_exist_per_test(test_db_session):
+    from app.models.role import Role
+    needed = {"customer", "admin"}
+    existing = set()
+    result = await test_db_session.execute(select(Role.name))
+    for row in result.scalars().all():
+        existing.add(row)
+    for role_name in needed - existing:
+        test_db_session.add(Role(name=role_name))
+    if needed - existing:
+        await test_db_session.commit()
 
 # Clean all tables before each test to ensure a clean DB state
 import pytest

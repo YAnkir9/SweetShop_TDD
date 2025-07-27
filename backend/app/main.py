@@ -70,10 +70,17 @@ def create_app() -> FastAPI:
             )
             db.add(sweet)
             await db.commit()
-            await db.refresh(sweet)
-            return sweet
+            # Eagerly load category after refresh
+            from sqlalchemy.orm import selectinload
+            result = await db.execute(
+                select(Sweet).options(selectinload(Sweet.category)).where(Sweet.id == sweet.id)
+            )
+            sweet_with_category = result.scalars().first()
+            return sweet_with_category
         except Exception as e:
             # For customer test, ensure we return 403
+            import sys
+            print(f"[ERROR] Exception in create_sweet_direct: {e}", file=sys.stderr)
             if "role" in str(e) and "admin" in str(e):
                 return JSONResponse(
                     status_code=403,

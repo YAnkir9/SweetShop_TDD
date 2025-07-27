@@ -19,10 +19,9 @@ from app.utils.auth import create_access_token, hash_password
 async def test_search_sweets_by_name(async_client: AsyncClient, test_db_session: AsyncSession):
     # Setup: Create user, category and sweets
 
-    # Create customer role
-    customer_role = Role(name="customer")
-    test_db_session.add(customer_role)
-    await test_db_session.flush()
+    # Get customer role
+    customer_role = await test_db_session.execute(select(Role).where(Role.name == "customer"))
+    customer_role = customer_role.scalar_one()
     role_id = customer_role.id
 
     user = User(username="testuser", email="testuser@example.com", password_hash=hash_password("password"), role_id=role_id, is_verified=True)
@@ -61,10 +60,9 @@ async def test_search_sweets_by_name(async_client: AsyncClient, test_db_session:
 async def test_search_sweets_by_category(async_client: AsyncClient, test_db_session: AsyncSession):
     # Setup: Create user, categories and sweets
 
-    # Create customer role
-    customer_role = Role(name="customer")
-    test_db_session.add(customer_role)
-    await test_db_session.flush()
+    # Get customer role
+    customer_role = await test_db_session.execute(select(Role).where(Role.name == "customer"))
+    customer_role = customer_role.scalar_one()
     role_id = customer_role.id
 
     user = User(username="testuser2", email="testuser2@example.com", password_hash=hash_password("password"), role_id=role_id, is_verified=True)
@@ -103,10 +101,9 @@ async def test_search_sweets_by_category(async_client: AsyncClient, test_db_sess
 async def test_search_sweets_by_price_range(async_client: AsyncClient, test_db_session: AsyncSession):
     # Setup: Create user, one category, multiple price points
 
-    # Create customer role
-    customer_role = Role(name="customer")
-    test_db_session.add(customer_role)
-    await test_db_session.flush()
+    # Get customer role
+    customer_role = await test_db_session.execute(select(Role).where(Role.name == "customer"))
+    customer_role = customer_role.scalar_one()
     role_id = customer_role.id
 
     user = User(username="testuser3", email="testuser3@example.com", password_hash=hash_password("password"), role_id=role_id, is_verified=True)
@@ -143,10 +140,9 @@ async def test_search_sweets_by_price_range(async_client: AsyncClient, test_db_s
 
 @pytest.mark.asyncio
 async def test_search_returns_empty_when_no_match(async_client: AsyncClient, test_db_session: AsyncSession):
-    # Create customer role
-    customer_role = Role(name="customer")
-    test_db_session.add(customer_role)
-    await test_db_session.flush()
+    # Get customer role
+    customer_role = await test_db_session.execute(select(Role).where(Role.name == "customer"))
+    customer_role = customer_role.scalar_one()
     role_id = customer_role.id
 
     user = User(username="testuser4", email="testuser4@example.com", password_hash=hash_password("password"), role_id=role_id, is_verified=True)
