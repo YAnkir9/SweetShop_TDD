@@ -13,6 +13,7 @@ from ..models.sweet import Sweet
 from ..models.category import Category
 from ..models.review import Review
 from ..models.user import User
+from ..models.role import Role
 from ..utils.sweet_utils import get_sweet_or_404
 from ..utils.admin import require_admin_role
 from ..schemas.sweet import SweetResponse, SweetUpdate, SweetCreate
@@ -104,20 +105,21 @@ async def get_sweet_detail(
 async def update_sweet(
     sweet_id: int,
     sweet_update: SweetUpdate,
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> SweetResponse:
     """Update a sweet - Admin only"""
     
-    # Check authentication and admin role
-    if not credentials:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    # Get user's role to check admin access
+    user_role_query = select(Role).where(Role.id == current_user.role_id)
+    role_result = await db.execute(user_role_query)
+    user_role = role_result.scalar_one_or_none()
     
-    current_user = await require_admin_role(credentials.credentials, db)
+    if not user_role or user_role.name != 'admin':
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admins can update sweets"
+        )
     
     # Get existing sweet
     sweet = await get_sweet_or_404(db, sweet_id, load_relations=True)
@@ -158,20 +160,21 @@ async def update_sweet(
 @router.delete("/sweets/{sweet_id}", status_code=status.HTTP_200_OK)
 async def delete_sweet(
     sweet_id: int,
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Soft delete a sweet - Admin only"""
     
-    # Check authentication and admin role
-    if not credentials:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    # Get user's role to check admin access
+    user_role_query = select(Role).where(Role.id == current_user.role_id)
+    role_result = await db.execute(user_role_query)
+    user_role = role_result.scalar_one_or_none()
     
-    current_user = await require_admin_role(credentials.credentials, db)
+    if not user_role or user_role.name != 'admin':
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admins can delete sweets"
+        )
     
     # Get existing sweet
     sweet = await get_sweet_or_404(db, sweet_id)

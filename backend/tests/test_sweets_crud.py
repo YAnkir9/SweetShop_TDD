@@ -97,7 +97,11 @@ async def test_get_all_sweets_returns_list(async_client, test_db_session: AsyncS
     assert response.status_code in (200, 404, 401)  # Accept 401 if not implemented
 
 @pytest.mark.asyncio
-async def test_update_sweet_by_admin(async_client, test_role, test_db_session: AsyncSession):
+async def test_update_sweet_by_admin(async_client, test_db_session: AsyncSession):
+    # Get admin role
+    admin_role_result = await test_db_session.execute(select(Role).where(Role.name == "admin"))
+    admin_role = admin_role_result.scalar_one()
+    
     category = Category(name=f"JalebiCategory_{uuid.uuid4().hex[:8]}")
     test_db_session.add(category)
     await test_db_session.commit()
@@ -107,7 +111,7 @@ async def test_update_sweet_by_admin(async_client, test_role, test_db_session: A
         username=f"admin2_{admin_uuid}",
         email=f"admin2_{admin_uuid}@example.com",
         password_hash="hash",
-        role_id=test_role.id
+        role_id=admin_role.id
     )
     sweet = Sweet(name="Jalebi", price=15.0, category_id=category.id)
     test_db_session.add_all([admin_user, sweet])
@@ -118,12 +122,14 @@ async def test_update_sweet_by_admin(async_client, test_role, test_db_session: A
         json={"name": "Jalebi Updated", "price": 18.0, "category_id": category.id},
         headers={"Authorization": f"Bearer {token}"}
     )
-    print(f"Response status: {response.status_code}")
-    print(f"Response body: {response.text}")
     assert response.status_code in (200, 404)  # Accept 404 if not implemented
 
 @pytest.mark.asyncio
-async def test_delete_sweet_soft_deletes(async_client, test_role, test_db_session: AsyncSession):
+async def test_delete_sweet_soft_deletes(async_client, test_db_session: AsyncSession):
+    # Get admin role
+    admin_role_result = await test_db_session.execute(select(Role).where(Role.name == "admin"))
+    admin_role = admin_role_result.scalar_one()
+    
     category = Category(name=f"RasgullaCategory_{uuid.uuid4().hex[:8]}")
     test_db_session.add(category)
     await test_db_session.commit()
@@ -133,7 +139,7 @@ async def test_delete_sweet_soft_deletes(async_client, test_role, test_db_sessio
         username=f"admin3_{admin_uuid}",
         email=f"admin3_{admin_uuid}@example.com",
         password_hash="hash",
-        role_id=test_role.id
+        role_id=admin_role.id
     )
     sweet = Sweet(name="Rasgulla", price=20.0, category_id=category.id)
     test_db_session.add_all([admin_user, sweet])
@@ -146,7 +152,11 @@ async def test_delete_sweet_soft_deletes(async_client, test_role, test_db_sessio
     assert response.status_code in (200, 404)  # Accept 404 if not implemented
 
 @pytest.mark.asyncio
-async def test_customer_cannot_delete_sweet(async_client, test_role, test_db_session: AsyncSession):
+async def test_customer_cannot_delete_sweet(async_client, test_db_session: AsyncSession):
+    # Get customer role
+    customer_role_result = await test_db_session.execute(select(Role).where(Role.name == "customer"))
+    customer_role = customer_role_result.scalar_one()
+    
     category = Category(name=f"PedaCategory_{uuid.uuid4().hex[:8]}")
     test_db_session.add(category)
     await test_db_session.commit()
@@ -156,7 +166,7 @@ async def test_customer_cannot_delete_sweet(async_client, test_role, test_db_ses
         username=f"cust2_{cust_uuid}",
         email=f"cust2_{cust_uuid}@example.com",
         password_hash="hash",
-        role_id=test_role.id
+        role_id=customer_role.id
     )
     sweet = Sweet(name="Peda", price=8.0, category_id=category.id)
     test_db_session.add_all([customer_user, sweet])
