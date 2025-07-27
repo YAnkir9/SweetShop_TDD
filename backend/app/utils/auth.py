@@ -1,30 +1,35 @@
 """
-Authentication utilities - NOT IMPLEMENTED YET (TDD RED CASE)
+Authentication utilities for password hashing and JWT tokens
 """
 from passlib.context import CryptContext
-from passlib.hash import bcrypt
-from typing import Union
+from jose import JWTError, jwt
+from datetime import datetime, timedelta
+from typing import Optional
+from ..config import settings
 
+# Password hashing context
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hash_password(password: str) -> str:
-    """
-    Hash a password using bcrypt - NOT IMPLEMENTED YET (TDD RED CASE)
-    """
-    # TODO: Implement password hashing
-    raise NotImplementedError("Password hashing not implemented yet")
-
+    """Hash a password using bcrypt"""
+    return pwd_context.hash(password)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """
-    Verify a password against its hash - NOT IMPLEMENTED YET (TDD RED CASE)
-    """
-    # TODO: Implement password verification
-    raise NotImplementedError("Password verification not implemented yet")
-
+    """Verify a password against its hash"""
+    return pwd_context.verify(plain_password, hashed_password)
 
 def get_password_hash(password: str) -> str:
-    """
-    Alternative function name for password hashing - NOT IMPLEMENTED YET (TDD RED CASE)
-    """
-    # TODO: Implement password hashing
-    raise NotImplementedError("Password hashing not implemented yet")
+    """Alternative function name for password hashing"""
+    return hash_password(password)
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    """Create JWT access token"""
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm="HS256")
+    return encoded_jwt

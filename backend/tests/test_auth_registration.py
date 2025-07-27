@@ -12,18 +12,25 @@ class TestUserRegistration:
     
     def test_register_user_success(self, client, test_role):
         """Should create user and return 201 with user data"""
+        import uuid
+        unique_id = str(uuid.uuid4())[:8]
         user_data = {
-            "username": "testuser",
-            "email": "test@example.com",
+            "username": f"testuser_{unique_id}",
+            "email": f"test_{unique_id}@example.com",
             "password": "securepassword123"
         }
         
         response = client.post("/api/auth/register", json=user_data)
         
+        # Debug: print response if it fails
+        if response.status_code != 201:
+            print(f"Response status: {response.status_code}")
+            print(f"Response body: {response.text}")
+        
         assert response.status_code == 201
         data = response.json()
-        assert data["username"] == "testuser"
-        assert data["email"] == "test@example.com"
+        assert data["username"] == user_data["username"]
+        assert data["email"] == user_data["email"]
         assert data["role_id"] == test_role.id
         assert "password" not in data
         assert "id" in data
@@ -71,8 +78,21 @@ class TestUserLogin:
     
     def test_login_user_success(self, client, test_role):
         """Should return 200 with access token for valid credentials"""
+        # First register a user
+        import uuid
+        unique_id = str(uuid.uuid4())[:8]
+        user_data = {
+            "username": f"loginuser_{unique_id}",
+            "email": f"login_{unique_id}@example.com",
+            "password": "correctpassword123"
+        }
+        
+        register_response = client.post("/api/auth/register", json=user_data)
+        assert register_response.status_code == 201
+        
+        # Now try to login
         login_data = {
-            "email": "user@example.com",
+            "email": user_data["email"],
             "password": "correctpassword123"
         }
         
