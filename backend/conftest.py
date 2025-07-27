@@ -1,3 +1,16 @@
+import pytest
+import asyncio
+from app.database import Base, get_database_url
+from sqlalchemy.ext.asyncio import create_async_engine
+
+# Ensure test DB tables are created before any tests run
+@pytest.fixture(scope="session", autouse=True)
+def setup_test_db():
+    engine = create_async_engine(get_database_url(), echo=False)
+    async def create_all():
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+    asyncio.get_event_loop().run_until_complete(create_all())
 """
 Pytest async fixtures for Sweet Shop
 """
@@ -9,7 +22,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, Asyn
 from sqlalchemy import select
 from typing import AsyncGenerator
 
-from app.main import app
+from app.main import create_app
 from app.models.role import Role
 from app.models.user import User
 from app.utils.auth import hash_password
@@ -64,6 +77,12 @@ async def test_db_session() -> AsyncGenerator[AsyncSession, None]:
 @pytest.fixture
 async def async_client():
     from app.database import get_db
+
+
+    app = create_app()
+    print("\nRegistered routes in test app:")
+    for route in app.routes:
+        print(f"{route.path} [{','.join(route.methods)}] {route.name if hasattr(route, 'name') else ''}")
 
     async def override_get_db():
         session_factory = get_test_session_factory()

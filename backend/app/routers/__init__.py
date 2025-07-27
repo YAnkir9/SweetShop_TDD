@@ -1,1 +1,1 @@
-# Routers package
+__all__ = ["auth", "sweets", "admin"]
