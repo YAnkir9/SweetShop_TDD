@@ -16,6 +16,7 @@ from app.models.restock import Restock
 from app.models.sweet_inventory import SweetInventory
 from app.utils.auth import decode_access_token, get_current_user
 from app.utils.admin import require_admin_role
+from app.utils.sweet_utils import get_sweet_or_404
 from app.services.audit_service_simple import AuditService, AuditAction, log_admin_action
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
@@ -111,15 +112,7 @@ async def restock_inventory(
     current_user = await require_admin_role(credentials.credentials, db)
     
     # Check if sweet exists
-    stmt = select(Sweet).where(Sweet.id == restock_data.sweet_id, Sweet.is_deleted == False)
-    result = await db.execute(stmt)
-    sweet = result.scalar_one_or_none()
-    
-    if not sweet:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Sweet not found"
-        )
+    sweet = await get_sweet_or_404(db, restock_data.sweet_id)
     
     # Update inventory quantity
     inventory_stmt = select(SweetInventory).where(SweetInventory.sweet_id == restock_data.sweet_id)

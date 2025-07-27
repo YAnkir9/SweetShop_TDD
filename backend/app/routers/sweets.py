@@ -12,6 +12,7 @@ from ..models.sweet import Sweet
 from ..models.category import Category
 from ..models.review import Review
 from ..models.user import User
+from ..utils.sweet_utils import get_sweet_or_404
 from ..schemas.sweet import SweetResponse
 from ..database import get_db
 
@@ -66,19 +67,8 @@ async def get_sweet_detail(
     db: AsyncSession = Depends(get_db)
 ) -> SweetResponse:
     """Get detailed information about a specific sweet including reviews"""
-    # Get sweet with category
-    sweet_query = select(Sweet).options(
-        selectinload(Sweet.category)
-    ).where(Sweet.id == sweet_id, Sweet.is_deleted == False)
-    
-    sweet_result = await db.execute(sweet_query)
-    sweet = sweet_result.scalar_one_or_none()
-    
-    if not sweet:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Sweet not found"
-        )
+    # Get sweet with relationships
+    sweet = await get_sweet_or_404(db, sweet_id, load_relations=True)
     
     # Get reviews with usernames
     reviews_query = select(Review, User).join(User).where(Review.sweet_id == sweet_id)

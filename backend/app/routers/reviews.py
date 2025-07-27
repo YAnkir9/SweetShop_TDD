@@ -5,7 +5,6 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_
 from typing import Optional, List
-import re
 
 from app.database import get_db
 from app.models.user import User
@@ -13,6 +12,8 @@ from app.models.sweet import Sweet
 from app.models.review import Review
 from app.schemas.review import ReviewCreate, ReviewResponse
 from app.utils.auth import get_current_user
+from app.utils.sweet_utils import get_sweet_or_404, validate_rating
+from app.utils.security import validate_user_input
 
 router = APIRouter(prefix="/api/reviews", tags=["reviews"])
 security = HTTPBearer(auto_error=False)
@@ -27,22 +28,10 @@ async def create_review(
     """Create a new review for a sweet"""
     
     # Validate rating
-    if review_data.rating < 1 or review_data.rating > 5:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Rating must be between 1 and 5"
-        )
+    validate_rating(review_data.rating)
     
     # Check if sweet exists
-    sweet_stmt = select(Sweet).where(Sweet.id == review_data.sweet_id, Sweet.is_deleted == False)
-    sweet_result = await db.execute(sweet_stmt)
-    sweet = sweet_result.scalar_one_or_none()
-    
-    if not sweet:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Sweet not found"
-        )
+    sweet = await get_sweet_or_404(db, review_data.sweet_id)
     
     # Check if user has already reviewed this sweet
     existing_review_stmt = select(Review).where(
@@ -60,28 +49,8 @@ async def create_review(
             detail="You have already reviewed this sweet"
         )
     
-    # Security check: Basic SQL injection prevention  
-    # Note: This is more about demonstrating awareness than comprehensive protection
-    # Real applications should use parameterized queries (which we already do with SQLAlchemy)
-    if review_data.comment:
-        # Reject obvious attempts to manipulate queries, but allow normal text
-        dangerous_patterns = [
-            r"\bUNION\s+SELECT\b",
-            r"\bINSERT\s+INTO\b", 
-            r"\bUPDATE\s+.*\s+SET\b",
-            r"\bDELETE\s+FROM\b",
-            r"\bCREATE\s+TABLE\b",
-            r"\bALTER\s+TABLE\b",
-            r"\bEXEC\b|\bEXECUTE\b"
-        ]
-        
-        comment_upper = review_data.comment.upper()
-        for pattern in dangerous_patterns:
-            if re.search(pattern, comment_upper, re.IGNORECASE):
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Invalid input detected"
-                )
+    # Security validation
+    validate_user_input(review_data.comment, "comment")
     
     # Create review
     review = Review(
@@ -113,15 +82,7 @@ async def get_sweet_reviews(
     """Get all reviews for a specific sweet"""
     
     # Check if sweet exists
-    sweet_stmt = select(Sweet).where(Sweet.id == sweet_id, Sweet.is_deleted == False)
-    sweet_result = await db.execute(sweet_stmt)
-    sweet = sweet_result.scalar_one_or_none()
-    
-    if not sweet:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Sweet not found"
-        )
+    sweet = await get_sweet_or_404(db, sweet_id)
     
     # Get reviews
     reviews_stmt = select(Review).where(Review.sweet_id == sweet_id).order_by(Review.created_at.desc())

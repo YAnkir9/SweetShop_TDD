@@ -6,6 +6,7 @@ from decimal import Decimal
 
 from ..database import get_db
 from ..utils.auth import get_current_user
+from ..utils.sweet_utils import get_sweet_or_404
 from ..models.user import User
 from ..models.sweet import Sweet
 from ..models.sweet_inventory import SweetInventory
@@ -22,16 +23,8 @@ async def create_purchase(
 ) -> PurchaseResponse:
     """Create a new purchase for authenticated customer"""
     
-    # Check if sweet exists and is not deleted
-    sweet_result = await db.execute(
-        select(Sweet).where(Sweet.id == purchase_data.sweet_id, Sweet.is_deleted == False)
-    )
-    sweet = sweet_result.scalar_one_or_none()
-    if not sweet:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Sweet not found"
-        )
+        # Check if sweet exists
+    sweet = await get_sweet_or_404(db, purchase_data.sweet_id)
     
     # Check inventory availability
     inventory_result = await db.execute(
