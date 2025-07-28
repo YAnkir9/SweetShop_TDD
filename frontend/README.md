@@ -44,6 +44,9 @@ Below are key screenshots demonstrating the dashboard features and UI flow:
 - Profile editing (address, password)
 - Enhanced sweet filtering (by price, rating)
 - Mobile UI polish
+- Profile editing (address, password)
+- Enhanced sweet filtering (by price, rating)
+- Mobile UI polish
 
 ## Latest Update (July 2025)
 - Only verified users (`is_verified: true`) can log in and access the dashboard.
