@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 export default function Login({ onLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,6 +32,8 @@ export default function Login({ onLogin }) {
             return;
           }
           if (onLogin) onLogin({ ...userData, token: tokenData.access_token });
+          window.alert("Login successful! Welcome, " + (userData.username || userData.email));
+          navigate("/dashboard");
         } else {
           setError("Failed to fetch user info after login.");
         }

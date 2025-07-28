@@ -50,7 +50,7 @@ export default function Register({ onRegister }) {
         const err = await res.json();
         setError(err.detail || "Registration failed");
       }
-    } catch (err) {
+    } catch {
       setError("Network error. Please try again.");
     }
     setLoading(false);

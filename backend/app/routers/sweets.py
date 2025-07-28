@@ -23,13 +23,27 @@ router = APIRouter(prefix="/api", tags=["sweets"])
 security = HTTPBearer(auto_error=False)
 
 @router.get("/sweets", status_code=status.HTTP_200_OK)
-async def get_sweets(current_user: User = Depends(get_current_user)) -> Dict[str, Any]:
-    return {
-        "message": "Successfully authenticated",
-        "user_id": current_user.id,
-        "user_email": current_user.email,
-        "sweets": []
-    }
+@router.get("/sweets", status_code=status.HTTP_200_OK)
+async def get_sweets(db: AsyncSession = Depends(get_db)) -> Dict[str, Any]:
+    # Query all non-deleted sweets with category
+    query = select(Sweet).options(selectinload(Sweet.category)).where(Sweet.is_deleted == False)
+    result = await db.execute(query.order_by(Sweet.name))
+    sweets = result.scalars().all()
+    # Group sweets by category name
+    by_cat = {}
+    for sweet in sweets:
+        cat_name = sweet.category.name if sweet.category else "Other"
+        if cat_name not in by_cat:
+            by_cat[cat_name] = []
+        by_cat[cat_name].append({
+            "id": sweet.id,
+            "name": sweet.name,
+            "price": float(sweet.price),
+            "image_url": sweet.image_url,
+            "description": sweet.description,
+            "category": {"id": sweet.category.id, "name": cat_name} if sweet.category else None
+        })
+    return {"items": [sweet for sweets in by_cat.values() for sweet in sweets]}
 
 @router.get("/sweets/search", response_model=List[SweetResponse], status_code=status.HTTP_200_OK)
 async def search_sweets(

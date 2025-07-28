@@ -43,19 +43,33 @@ Welcome to the **SweetShop** project—a modern, full-stack sweet shop managemen
 
 ## 🏆 Features & Achievements
 
-- **User Registration & Login** (with verification)
-- **Role-Based Access** (admin, customer)
-- **Sweet CRUD & Purchase Flow**
-- **Gujarati Unicode Support**
-- **Professional UI/UX**
-- **100% Passing Backend Tests**
+## 🔗 Related Documentation
+
+---
+
+## 🤖 My AI Usage
+
+### AI Tools Used
+- **GitHub Copilot** (main)
+- **ChatGPT** (for brainstorming and code review)
+
+### How I Used AI
+- I used **GitHub Copilot** to generate and refactor code for backend models, routers, and frontend React components, following SOLID and clean code principles.
+- I asked **Copilot** to automate repetitive tasks, such as CRUD form generation, error handling, and session management logic.
+- I used **ChatGPT** to brainstorm API endpoint structures, clarify TDD cycles, and review code for best practices.
+
+### Reflection on AI Impact
+- AI tools accelerated my workflow, especially for boilerplate code and refactoring to SOLID principles.
+- Copilot helped maintain consistency and reduced manual errors in both backend and frontend code.
+- ChatGPT provided valuable suggestions for API design and clean code structure.
+- Using AI responsibly, I always reviewed and tested generated code to ensure quality and maintainability.
 
 ---
 
 ## 🔗 Related Documentation
 
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [React + Vite Documentation](https://vitejs.dev/guide/)
+ - [FastAPI Documentation](https://fastapi.tiangolo.com/)
+ - [React + Vite Documentation](https://vitejs.dev/guide/)
 - [Test-Driven Development (TDD)](https://en.wikipedia.org/wiki/Test-driven_development)
 
 ---
