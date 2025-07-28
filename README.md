@@ -22,8 +22,6 @@ Welcome to the **SweetShop** project—a modern, full-stack sweet shop managemen
 - [`backend/`](./backend/README.md) — FastAPI backend, business logic, database models, and API endpoints
 - [`frontend/`](./frontend/README.md) — React dashboard, login/registration forms, asset management
 - [`backend/tests/`](./backend/tests/README.md) — All backend test suites and TDD methodology
-- [`backend/app/routers/README_AUTH.md`](./backend/app/routers/README_AUTH.md) — Auth API details
-- [`backend/app/routers/README_SWEETS.md`](./backend/app/routers/README_SWEETS.md) — Sweets API details
 
 ---
 
