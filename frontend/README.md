@@ -1,5 +1,28 @@
 # SweetShop Dashboard Usage
 
+## Summary (July 2025)
+
+- All core dashboard features are implemented and tested: login, registration, session management, sweets listing, purchase flow, and role-based access.
+- Only verified users can log in and access dashboard features; unverified users are blocked.
+- Sweets are grouped by category, searchable, and show out-of-stock status with clear visual cues for customers.
+- Admin UI supports CRUD for sweets, user management, and stock reporting.
+- Session persistence and error handling are robust.
+- All major backend and frontend tests pass.
+
+### Pending UI Tasks
+
+#### Admin Side
+- Bulk user actions and advanced role management
+- Inventory analytics dashboard
+- Exportable reports (CSV/PDF)
+- Audit log/history UI
+
+#### Customer Side
+- Order history and tracking
+- Profile editing (address, password)
+- Enhanced sweet filtering (by price, rating)
+- Mobile UI polish
+
 ## Latest Update (July 2025)
 - Only verified users (`is_verified: true`) can log in and access the dashboard.
 - Unverified users are blocked and shown an error message.
