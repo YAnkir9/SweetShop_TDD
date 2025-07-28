@@ -12,7 +12,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://postgres:allthebe
 engine = create_async_engine(DATABASE_URL, echo=True)
 AsyncSessionLocal = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
-async def seed():
+async def seed_database():
     async with AsyncSessionLocal() as session:
         from sqlalchemy import delete
         from app.models.purchase import Purchase
@@ -133,10 +133,12 @@ async def seed_sweets_and_inventory(session, cat_traditional, cat_festival, cat_
     ]
     session.add_all(sweets)
     await session.commit()
-    for sweet in sweets:
-        inv = SweetInventory(sweet_id=sweet.id, quantity=100)
+    for idx, sweet in enumerate(sweets):
+        # Set quantity 0 for first two sweets (simulate out of stock)
+        quantity = 0 if idx < 2 else 100
+        inv = SweetInventory(sweet_id=sweet.id, quantity=quantity)
         session.add(inv)
     await session.commit()
 
 if __name__ == "__main__":
-    asyncio.run(seed())
+    asyncio.run(seed_database())

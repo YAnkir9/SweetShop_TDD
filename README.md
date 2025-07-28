@@ -1,8 +1,23 @@
 # 🍬 SweetShop TDD Project
-
 Welcome to the **SweetShop** project—a modern, full-stack sweet shop management system built using **Test-Driven Development (TDD)**, FastAPI, and React (Vite). This repository demonstrates professional software engineering practices, robust authentication, and multilingual support for the Gujarat market.
 
 ---
+---
+
+## 🚧 Pending UI Tasks
+
+### Admin Side
+- Advanced user management (bulk actions, role editing)
+- Sweet inventory analytics dashboard
+- Customizable reports export (CSV/PDF)
+- UI for audit log/history
+
+### Customer Side
+- Order history and tracking UI
+- Review and rating system improvements
+- Profile editing (address, password)
+- Enhanced sweet filtering (by price, rating)
+- Responsive mobile UI polish
 
 ## 🚀 Project Highlights
 

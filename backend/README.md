@@ -5,6 +5,13 @@
 [![Tests](https://img.shields.io/badge/Tests-76_passing-brightgreen.svg)](./tests)
 [![TDD](https://img.shields.io/badge/Methodology-TDD-orange.svg)](https://en.wikipedia.org/wiki/Test-driven_development)
 
+## Database Seeding
+
+To seed the database with initial data, run:
+```bash
+python backend/seed_database.py
+```
+
 **Latest Update (July 2025):**
 - User login and dashboard now require `is_verified: true` for access.
 - Unverified users are blocked from login and dashboard.
