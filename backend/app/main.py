@@ -22,6 +22,13 @@ def create_app() -> FastAPI:
     app.include_router(admin.router)
     app.include_router(purchases.router)
     app.include_router(reviews.router)
+
+    # Serve sweet_images as static files
+    from fastapi.staticfiles import StaticFiles
+    import os
+    # Use absolute path for sweet_images
+    static_dir = "/home/ankit/Downloads/SweetShop_TDD/backend/sweet_images"
+    app.mount("/sweet_images", StaticFiles(directory=static_dir), name="sweet_images")
     
     # Direct sweet endpoint for testing (Add back since router registration not working)
     from app.schemas.sweet import SweetCreate, SweetResponse

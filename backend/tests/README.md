@@ -1,8 +1,8 @@
-# Authentication Tests - TDD Implementation
+# Authentication & Verification Tests - TDD Implementation
 
 ## Overview
 
-This directory contains comprehensive tests for the authentication system built using Test-Driven Development (TDD) methodology. The authentication system includes user registration, login functionality, JWT token generation, and proper security measures.
+This directory contains comprehensive tests for the authentication and user verification system built using Test-Driven Development (TDD) methodology. The authentication system includes user registration, login functionality, JWT token generation, user verification logic, and proper security measures.
 
 ## Test Structure
 
@@ -14,12 +14,16 @@ This directory contains comprehensive tests for the authentication system built 
 
 #### 1. TestUserRegistration
 Tests for user registration endpoint (`/api/auth/register`):
+  - Users are created with `is_verified: false` by default unless set otherwise.
+  - Unverified users cannot log in (see login tests).
 - ✅ `test_register_user_success` - Valid user registration
 - ⚠️ `test_register_duplicate_email_fails` - Duplicate email handling (async issue)
 - ✅ `test_register_validation_errors` - Input validation
 
 #### 2. TestUserLogin  
 Tests for user login endpoint (`/api/auth/login`):
+  - Only users with `is_verified: true` can log in.
+  - Unverified users are blocked and receive an error.
 - ✅ `test_login_user_success` - Valid user login
 - ⚠️ `test_login_invalid_credentials` - Invalid credentials handling (async issue)
 - ✅ `test_login_validation_errors` - Input validation
@@ -32,6 +36,8 @@ End-to-end authentication workflow tests:
 
 ### ✅ Passing Tests (5/7)
 All core authentication functionality works perfectly:
+  - User verification logic enforced in login and dashboard.
+  - Unverified users are blocked from login and dashboard.
 1. User registration with secure password hashing
 2. JWT token generation and validation
 3. Input validation and error handling

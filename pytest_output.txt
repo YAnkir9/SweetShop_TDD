@@ -1,0 +1,453 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.13, pytest-7.4.3, pluggy-1.5.0 -- /home/ankit/miniconda3/envs/sweetshop-env/bin/python3.11
+cachedir: .pytest_cache
+rootdir: /home/ankit/Downloads/SweetShop_TDD/backend
+configfile: pyproject.toml
+plugins: anyio-3.7.1, asyncio-0.21.1
+asyncio: mode=Mode.AUTO
+collecting ... collected 81 items
+
+backend/test_admin_direct.py::test_admin_endpoint PASSED                 [  1%]
+backend/test_failing_scenarios.py::test_duplicate_registration FAILED    [  2%]
+backend/test_failing_scenarios.py::test_invalid_login FAILED             [  3%]
+backend/tests/test_admin.py::TestAdminUsersEndpoint::test_admin_can_access_users_list PASSED [  4%]
+backend/tests/test_admin.py::TestAdminUsersEndpoint::test_customer_gets_403_on_admin_users PASSED [  6%]
+backend/tests/test_admin.py::TestAdminUsersEndpoint::test_missing_token_gets_401_on_admin_users PASSED [  7%]
+backend/tests/test_admin.py::TestAdminUsersEndpoint::test_tampered_role_token_gets_403 PASSED [  8%]
+backend/tests/test_admin.py::TestAdminUsersEndpoint::test_invalid_token_gets_401_on_admin_users PASSED [  9%]
+backend/tests/test_admin.py::TestAdminRestockEndpoint::test_admin_can_access_restock_endpoint PASSED [ 11%]
+backend/tests/test_admin.py::TestAdminRestockEndpoint::test_customer_gets_403_on_restock PASSED [ 12%]
+backend/tests/test_admin.py::TestAdminRestockEndpoint::test_restock_validates_input_data PASSED [ 13%]
+backend/tests/test_admin.py::TestAdminRestockEndpoint::test_restock_requires_existing_sweet FAILED [ 14%]
+backend/tests/test_admin.py::TestAdminRoleValidation::test_token_without_role_claim_gets_403 PASSED [ 16%]
+backend/tests/test_admin.py::TestAdminRoleValidation::test_expired_admin_token_gets_401 PASSED [ 17%]
+backend/tests/test_admin.py::TestAdminRoleValidation::test_user_role_validation_against_database PASSED [ 18%]
+backend/tests/test_admin.py::TestAdminEndpointSecurity::test_admin_endpoints_require_https_in_production PASSED [ 19%]
+backend/tests/test_admin.py::TestAdminEndpointSecurity::test_admin_actions_are_logged PASSED [ 20%]
+backend/tests/test_admin.py::TestAdminEndpointSecurity::test_rate_limiting_on_admin_endpoints PASSED [ 22%]
+backend/tests/test_auth_registration.py::TestUserRegistration::test_register_user_success PASSED [ 23%]
+backend/tests/test_auth_registration.py::TestUserRegistration::test_register_duplicate_email_fails PASSED [ 24%]
+backend/tests/test_auth_registration.py::TestUserRegistration::test_register_validation_errors PASSED [ 25%]
+backend/tests/test_auth_registration.py::TestUserLogin::test_login_user_success PASSED [ 27%]
+backend/tests/test_auth_registration.py::TestUserLogin::test_login_invalid_credentials PASSED [ 28%]
+backend/tests/test_auth_registration.py::TestUserLogin::test_login_validation_errors PASSED [ 29%]
+backend/tests/test_config.py::test_settings_default_values PASSED        [ 30%]
+backend/tests/test_config.py::test_port_validation PASSED                [ 32%]
+backend/tests/test_config.py::test_access_token_expire_validation PASSED [ 33%]
+backend/tests/test_config.py::test_refresh_token_expire_validation PASSED [ 34%]
+backend/tests/test_config.py::test_rate_limit_validation PASSED          [ 35%]
+backend/tests/test_config.py::test_all_field_types PASSED                [ 37%]
+backend/tests/test_config.py::test_settings_with_env_file PASSED         [ 38%]
+backend/tests/test_database.py::test_database_url_conversion PASSED      [ 39%]
+backend/tests/test_database.py::test_tables_exist SKIPPED (Database
+connection issues - test to be fixed later)                              [ 40%]
+backend/tests/test_database.py::test_foreign_key_constraints SKIPPED     [ 41%]
+backend/tests/test_database.py::test_roles_table_has_two_roles SKIPPED   [ 43%]
+backend/tests/test_database.py::test_basic_connection SKIPPED (Database
+connection issues - test to be fixed later)                              [ 44%]
+backend/tests/test_gujarati_support.py::test_gujarati_review_storage_and_retrieval PASSED [ 45%]
+backend/tests/test_gujarati_support.py::test_mixed_language_content_support PASSED [ 46%]
+backend/tests/test_models.py::test_role_model PASSED                     [ 48%]
+backend/tests/test_models.py::test_user_model PASSED                     [ 49%]
+backend/tests/test_models.py::test_category_model PASSED                 [ 50%]
+backend/tests/test_models.py::test_sweet_model PASSED                    [ 51%]
+backend/tests/test_models.py::test_sweet_inventory_model PASSED          [ 53%]
+backend/tests/test_models.py::test_purchase_model PASSED                 [ 54%]
+backend/tests/test_models.py::test_restock_model PASSED                  [ 55%]
+backend/tests/test_models.py::test_review_model PASSED                   [ 56%]
+backend/tests/test_models.py::test_audit_log_model PASSED                [ 58%]
+backend/tests/test_models.py::test_revoked_token_model PASSED            [ 59%]
+backend/tests/test_models.py::test_model_relationships PASSED            [ 60%]
+backend/tests/test_models.py::test_model_repr_methods PASSED             [ 61%]
+backend/tests/test_purchase.py::test_customer_can_purchase_sweet PASSED  [ 62%]
+backend/tests/test_purchase.py::test_purchase_fails_if_sweet_out_of_stock PASSED [ 64%]
+backend/tests/test_purchase.py::test_purchase_requires_valid_sweet_id PASSED [ 65%]
+backend/tests/test_purchase.py::test_purchase_requires_authentication PASSED [ 66%]
+backend/tests/test_purchase.py::test_purchase_validates_quantity PASSED  [ 67%]
+backend/tests/test_restock.py::test_restock_increases_quantity PASSED    [ 69%]
+backend/tests/test_restock.py::test_restock_with_invalid_id_fails PASSED [ 70%]
+backend/tests/test_reviews.py::test_authenticated_user_can_review_sweet PASSED [ 71%]
+backend/tests/test_reviews.py::test_user_cannot_review_same_sweet_twice PASSED [ 72%]
+backend/tests/test_reviews.py::test_reviews_returned_with_sweets PASSED  [ 74%]
+backend/tests/test_reviews.py::test_review_requires_authentication PASSED [ 75%]
+backend/tests/test_reviews.py::test_review_rejects_sql_injection_input PASSED [ 76%]
+backend/tests/test_sweets_crud.py::test_admin_can_create_sweet PASSED    [ 77%]
+backend/tests/test_sweets_crud.py::test_customer_cannot_create_sweet PASSED [ 79%]
+backend/tests/test_sweets_crud.py::test_get_all_sweets_returns_list PASSED [ 80%]
+backend/tests/test_sweets_crud.py::test_update_sweet_by_admin PASSED     [ 81%]
+backend/tests/test_sweets_crud.py::test_delete_sweet_soft_deletes PASSED [ 82%]
+backend/tests/test_sweets_crud.py::test_customer_cannot_delete_sweet PASSED [ 83%]
+backend/tests/test_sweets_search.py::test_search_sweets_by_name PASSED   [ 85%]
+backend/tests/test_sweets_search.py::test_search_sweets_by_category PASSED [ 86%]
+backend/tests/test_sweets_search.py::test_search_sweets_by_price_range PASSED [ 87%]
+backend/tests/test_sweets_search.py::test_search_returns_empty_when_no_match PASSED [ 88%]
+backend/tests/test_token.py::test_missing_token_returns_401 PASSED       [ 90%]
+backend/tests/test_token.py::test_valid_token_allows_access PASSED       [ 91%]
+backend/tests/test_token.py::test_expired_token_returns_401 PASSED       [ 92%]
+backend/tests/test_token.py::test_invalid_signature_returns_401 PASSED   [ 93%]
+backend/tests/test_token.py::test_token_without_bearer_prefix_returns_401 PASSED [ 95%]
+backend/tests/test_token.py::test_malformed_token_returns_401 PASSED     [ 96%]
+backend/tests/test_token.py::test_empty_bearer_token_returns_401 PASSED  [ 97%]
+backend/tests/test_triggers.py::TestTriggers::test_triggers_placeholder SKIPPED [ 98%]
+backend/tests/test_triggers.py::TestTriggers::test_triggers_disabled PASSED [100%]
+
+=================================== FAILURES ===================================
+_________________________ test_duplicate_registration __________________________
+backend/test_failing_scenarios.py:45: in test_duplicate_registration
+    response1 = await client.post("/api/auth/register", json=user_data)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/httpx/_client.py:1848: in post
+    return await self.request(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/httpx/_client.py:1530: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/httpx/_client.py:1617: in send
+    response = await self._send_handling_auth(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/httpx/_client.py:1645: in _send_handling_auth
+    response = await self._send_handling_redirects(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/httpx/_client.py:1682: in _send_handling_redirects
+    response = await self._send_single_request(request)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/httpx/_client.py:1719: in _send_single_request
+    response = await transport.handle_async_request(request)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/httpx/_transports/asgi.py:162: in handle_async_request
+    await self.app(scope, receive, send)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/fastapi/applications.py:1106: in __call__
+    await super().__call__(scope, receive, send)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/starlette/applications.py:122: in __call__
+    await self.middleware_stack(scope, receive, send)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/starlette/middleware/errors.py:184: in __call__
+    raise exc
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/starlette/middleware/errors.py:162: in __call__
+    await self.app(scope, receive, _send)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/starlette/middleware/exceptions.py:79: in __call__
+    raise exc
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/starlette/middleware/exceptions.py:68: in __call__
+    await self.app(scope, receive, sender)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py:20: in __call__
+    raise e
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py:17: in __call__
+    await self.app(scope, receive, send)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/starlette/routing.py:718: in __call__
+    await route.handle(scope, receive, send)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/starlette/routing.py:276: in handle
+    await self.app(scope, receive, send)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/starlette/routing.py:66: in app
+    response = await func(request)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/fastapi/routing.py:274: in app
+    raw_response = await run_endpoint_function(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/fastapi/routing.py:191: in run_endpoint_function
+    return await dependant.call(**values)
+backend/app/routers/auth.py:114: in register_user
+    return await auth_service.register_user(user_data)
+backend/app/routers/auth.py:62: in register_user
+    await self._validate_user_uniqueness(user_data.email, user_data.username)
+backend/app/routers/auth.py:88: in _validate_user_uniqueness
+    if await self.user_repo.get_by_email(email):
+backend/app/routers/auth.py:23: in get_by_email
+    result = await self.db.execute(select(User).filter(User.email == email))
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/ext/asyncio/session.py:455: in execute
+    result = await greenlet_spawn(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/util/_concurrency_py3k.py:190: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/orm/session.py:2308: in execute
+    return self._execute_internal(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/orm/session.py:2190: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/orm/context.py:293: in orm_execute_statement
+    result = conn.execute(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1416: in execute
+    return meth(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/sql/elements.py:516: in _execute_on_connection
+    return connection._execute_clauseelement(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1639: in _execute_clauseelement
+    ret = self._execute_context(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/engine/base.py:2346: in _handle_dbapi_exception
+    raise exc_info[1].with_traceback(exc_info[2])
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:591: in execute
+    self._adapt_connection.await_(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:527: in _prepare_and_execute
+    await adapt_connection._start_transaction()
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:861: in _start_transaction
+    self._handle_exception(error)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:810: in _handle_exception
+    raise error
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:859: in _start_transaction
+    await self._transaction.start()
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/asyncpg/transaction.py:146: in start
+    await self._connection.execute(query)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/asyncpg/connection.py:349: in execute
+    result = await self._protocol.query(query, timeout)
+asyncpg/protocol/protocol.pyx:375: in query
+    ???
+E   RuntimeError: Task <Task pending name='Task-18' coro=<test_duplicate_registration() running at /home/ankit/Downloads/SweetShop_TDD/backend/test_failing_scenarios.py:45> cb=[_run_until_complete_cb() at /home/ankit/miniconda3/envs/sweetshop-env/lib/python3.11/asyncio/base_events.py:181, WorkerThread.stop()]> got Future <Future pending cb=[BaseProtocol._on_waiter_completed()]> attached to a different loop
+----------------------------- Captured stdout call -----------------------------
+🔍 Testing duplicate registration scenario...
+Testing with email: duplicate_b49c8552@example.com
+First registration...
+______________________________ test_invalid_login ______________________________
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:859: in _start_transaction
+    await self._transaction.start()
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/asyncpg/transaction.py:146: in start
+    await self._connection.execute(query)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/asyncpg/connection.py:349: in execute
+    result = await self._protocol.query(query, timeout)
+asyncpg/protocol/protocol.pyx:360: in query
+    ???
+asyncpg/protocol/protocol.pyx:745: in asyncpg.protocol.protocol.BaseProtocol._check_state
+    ???
+E   asyncpg.exceptions._base.InterfaceError: cannot perform operation: another operation is in progress
+
+The above exception was the direct cause of the following exception:
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:591: in execute
+    self._adapt_connection.await_(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:527: in _prepare_and_execute
+    await adapt_connection._start_transaction()
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:861: in _start_transaction
+    self._handle_exception(error)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:808: in _handle_exception
+    raise translated_error from error
+E   sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.InterfaceError: <class 'asyncpg.exceptions._base.InterfaceError'>: cannot perform operation: another operation is in progress
+
+The above exception was the direct cause of the following exception:
+backend/test_failing_scenarios.py:65: in test_invalid_login
+    response = await client.post("/api/auth/login", json={
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/httpx/_client.py:1848: in post
+    return await self.request(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/httpx/_client.py:1530: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/httpx/_client.py:1617: in send
+    response = await self._send_handling_auth(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/httpx/_client.py:1645: in _send_handling_auth
+    response = await self._send_handling_redirects(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/httpx/_client.py:1682: in _send_handling_redirects
+    response = await self._send_single_request(request)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/httpx/_client.py:1719: in _send_single_request
+    response = await transport.handle_async_request(request)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/httpx/_transports/asgi.py:162: in handle_async_request
+    await self.app(scope, receive, send)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/fastapi/applications.py:1106: in __call__
+    await super().__call__(scope, receive, send)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/starlette/applications.py:122: in __call__
+    await self.middleware_stack(scope, receive, send)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/starlette/middleware/errors.py:184: in __call__
+    raise exc
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/starlette/middleware/errors.py:162: in __call__
+    await self.app(scope, receive, _send)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/starlette/middleware/exceptions.py:79: in __call__
+    raise exc
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/starlette/middleware/exceptions.py:68: in __call__
+    await self.app(scope, receive, sender)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py:20: in __call__
+    raise e
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py:17: in __call__
+    await self.app(scope, receive, send)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/starlette/routing.py:718: in __call__
+    await route.handle(scope, receive, send)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/starlette/routing.py:276: in handle
+    await self.app(scope, receive, send)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/starlette/routing.py:66: in app
+    response = await func(request)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/fastapi/routing.py:274: in app
+    raw_response = await run_endpoint_function(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/fastapi/routing.py:191: in run_endpoint_function
+    return await dependant.call(**values)
+backend/app/routers/auth.py:122: in login_user
+    return await auth_service.login_user(login_data)
+backend/app/routers/auth.py:67: in login_user
+    user = await self.user_repo.get_by_email(login_data.email)
+backend/app/routers/auth.py:23: in get_by_email
+    result = await self.db.execute(select(User).filter(User.email == email))
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/ext/asyncio/session.py:455: in execute
+    result = await greenlet_spawn(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/util/_concurrency_py3k.py:190: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/orm/session.py:2308: in execute
+    return self._execute_internal(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/orm/session.py:2190: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/orm/context.py:293: in orm_execute_statement
+    result = conn.execute(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1416: in execute
+    return meth(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/sql/elements.py:516: in _execute_on_connection
+    return connection._execute_clauseelement(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1639: in _execute_clauseelement
+    ret = self._execute_context(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/engine/base.py:2343: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:591: in execute
+    self._adapt_connection.await_(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:527: in _prepare_and_execute
+    await adapt_connection._start_transaction()
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:861: in _start_transaction
+    self._handle_exception(error)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:808: in _handle_exception
+    raise translated_error from error
+E   sqlalchemy.exc.InterfaceError: (sqlalchemy.dialects.postgresql.asyncpg.InterfaceError) <class 'asyncpg.exceptions._base.InterfaceError'>: cannot perform operation: another operation is in progress
+E   [SQL: SELECT users.id, users.username, users.email, users.password_hash, users.role_id, users.is_verified, users.address_line1, users.address_line2, users.city, users.state, users.postal_code, users.country, users.created_at, users.updated_at 
+E   FROM users 
+E   WHERE users.email = $1::VARCHAR]
+E   [parameters: ('nonexistent@example.com',)]
+E   (Background on this error at: https://sqlalche.me/e/20/rvf5)
+----------------------------- Captured stdout call -----------------------------
+
+🔍 Testing invalid login scenario...
+Testing nonexistent email...
+________ TestAdminRestockEndpoint.test_restock_requires_existing_sweet _________
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:859: in _start_transaction
+    await self._transaction.start()
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/asyncpg/transaction.py:146: in start
+    await self._connection.execute(query)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/asyncpg/connection.py:349: in execute
+    result = await self._protocol.query(query, timeout)
+asyncpg/protocol/protocol.pyx:360: in query
+    ???
+asyncpg/protocol/protocol.pyx:745: in asyncpg.protocol.protocol.BaseProtocol._check_state
+    ???
+E   asyncpg.exceptions._base.InterfaceError: cannot perform operation: another operation is in progress
+
+The above exception was the direct cause of the following exception:
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:591: in execute
+    self._adapt_connection.await_(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:527: in _prepare_and_execute
+    await adapt_connection._start_transaction()
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:861: in _start_transaction
+    self._handle_exception(error)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:808: in _handle_exception
+    raise translated_error from error
+E   sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.InterfaceError: <class 'asyncpg.exceptions._base.InterfaceError'>: cannot perform operation: another operation is in progress
+
+The above exception was the direct cause of the following exception:
+backend/tests/test_admin.py:228: in test_restock_requires_existing_sweet
+    response = await client.post(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/httpx/_client.py:1848: in post
+    return await self.request(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/httpx/_client.py:1530: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/httpx/_client.py:1617: in send
+    response = await self._send_handling_auth(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/httpx/_client.py:1645: in _send_handling_auth
+    response = await self._send_handling_redirects(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/httpx/_client.py:1682: in _send_handling_redirects
+    response = await self._send_single_request(request)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/httpx/_client.py:1719: in _send_single_request
+    response = await transport.handle_async_request(request)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/httpx/_transports/asgi.py:162: in handle_async_request
+    await self.app(scope, receive, send)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/fastapi/applications.py:1106: in __call__
+    await super().__call__(scope, receive, send)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/starlette/applications.py:122: in __call__
+    await self.middleware_stack(scope, receive, send)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/starlette/middleware/errors.py:184: in __call__
+    raise exc
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/starlette/middleware/errors.py:162: in __call__
+    await self.app(scope, receive, _send)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/starlette/middleware/exceptions.py:79: in __call__
+    raise exc
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/starlette/middleware/exceptions.py:68: in __call__
+    await self.app(scope, receive, sender)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py:20: in __call__
+    raise e
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py:17: in __call__
+    await self.app(scope, receive, send)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/starlette/routing.py:718: in __call__
+    await route.handle(scope, receive, send)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/starlette/routing.py:276: in handle
+    await self.app(scope, receive, send)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/starlette/routing.py:66: in app
+    response = await func(request)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/fastapi/routing.py:274: in app
+    raw_response = await run_endpoint_function(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/fastapi/routing.py:191: in run_endpoint_function
+    return await dependant.call(**values)
+backend/app/routers/admin.py:115: in restock_inventory
+    sweet = await get_sweet_or_404(db, restock_data.sweet_id)
+backend/app/utils/sweet_utils.py:35: in get_sweet_or_404
+    result = await db.execute(query)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/ext/asyncio/session.py:455: in execute
+    result = await greenlet_spawn(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/util/_concurrency_py3k.py:190: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/orm/session.py:2308: in execute
+    return self._execute_internal(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/orm/session.py:2190: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/orm/context.py:293: in orm_execute_statement
+    result = conn.execute(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1416: in execute
+    return meth(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/sql/elements.py:516: in _execute_on_connection
+    return connection._execute_clauseelement(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1639: in _execute_clauseelement
+    ret = self._execute_context(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/engine/base.py:2343: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:591: in execute
+    self._adapt_connection.await_(
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:527: in _prepare_and_execute
+    await adapt_connection._start_transaction()
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:861: in _start_transaction
+    self._handle_exception(error)
+../../miniconda3/envs/sweetshop-env/lib/python3.11/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:808: in _handle_exception
+    raise translated_error from error
+E   sqlalchemy.exc.InterfaceError: (sqlalchemy.dialects.postgresql.asyncpg.InterfaceError) <class 'asyncpg.exceptions._base.InterfaceError'>: cannot perform operation: another operation is in progress
+E   [SQL: SELECT sweets.id, sweets.name, sweets.category_id, sweets.price, sweets.image_url, sweets.description, sweets.is_deleted, sweets.created_at, sweets.updated_at 
+E   FROM sweets 
+E   WHERE sweets.id = $1::INTEGER AND sweets.is_deleted = false]
+E   [parameters: (999,)]
+E   (Background on this error at: https://sqlalche.me/e/20/rvf5)
+=========================== short test summary info ============================
+FAILED backend/test_failing_scenarios.py::test_duplicate_registration - Runti...
+FAILED backend/test_failing_scenarios.py::test_invalid_login - sqlalchemy.exc...
+FAILED backend/tests/test_admin.py::TestAdminRestockEndpoint::test_restock_requires_existing_sweet
+======== 3 failed, 73 passed, 5 skipped, 8 warnings in 71.10s (0:01:11) ========

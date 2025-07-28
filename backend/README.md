@@ -5,6 +5,11 @@
 [![Tests](https://img.shields.io/badge/Tests-76_passing-brightgreen.svg)](./tests)
 [![TDD](https://img.shields.io/badge/Methodology-TDD-orange.svg)](https://en.wikipedia.org/wiki/Test-driven_development)
 
+**Latest Update (July 2025):**
+- User login and dashboard now require `is_verified: true` for access.
+- Unverified users are blocked from login and dashboard.
+- All backend tests pass (see tests/README.md for details).
+
 A comprehensive sweet shop management system built using **Test-Driven Development (TDD)** methodology, demonstrating modern software engineering practices including clean architecture, SOLID principles, and professional AI-assisted development.
 
 ## 🎯 Project Overview

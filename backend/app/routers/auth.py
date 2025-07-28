@@ -40,14 +40,18 @@ class UserRepository:
     async def create_user(self, user_data: UserCreate) -> User:
         role = await self.get_default_role()
         hashed_password = hash_password(user_data.password)
-        
         new_user = User(
             username=user_data.username,
             email=user_data.email,
             password_hash=hashed_password,
-            role_id=role.id
+            role_id=role.id,
+            address_line1=user_data.address_line1,
+            address_line2=user_data.address_line2,
+            city=user_data.city,
+            state=user_data.state,
+            postal_code=user_data.postal_code,
+            country=user_data.country
         )
-        
         self.db.add(new_user)
         await self.db.commit()
         await self.db.refresh(new_user)
@@ -99,6 +103,15 @@ class AuthService:
 
 
 router = APIRouter(prefix="/api/auth", tags=["authentication"])
+
+# New endpoint to get user by email
+@router.get("/users/by-email/{email}", response_model=UserResponse)
+async def get_user_by_email(email: str, db: AsyncSession = Depends(get_db)):
+    user_repo = UserRepository(db)
+    user = await user_repo.get_by_email(email)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return UserResponse.model_validate(user)
 
 
 def get_auth_service(db: AsyncSession = Depends(get_db)) -> AuthService:

@@ -37,7 +37,6 @@ async def search_sweets(
     category: Optional[str] = Query(None, description="Category name to filter by"),
     min_price: Optional[float] = Query(None, ge=0, description="Minimum price"),
     max_price: Optional[float] = Query(None, ge=0, description="Maximum price"),
-    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> List[SweetResponse]:
     query = select(Sweet).options(
@@ -61,7 +60,15 @@ async def search_sweets(
 
     result = await db.execute(query.order_by(Sweet.name))
     sweets = result.scalars().all()
-    return [SweetResponse.model_validate(s) for s in sweets]
+    # Ensure image_url is included in response
+    return [SweetResponse(
+        id=s.id,
+        name=s.name,
+        price=s.price,
+        image_url=s.image_url,
+        category=s.category,
+        reviews=[r for r in getattr(s, 'reviews', [])]
+    ) for s in sweets]
 
 
 @router.get("/sweets/{sweet_id}", response_model=SweetResponse, status_code=status.HTTP_200_OK)
@@ -96,6 +103,7 @@ async def get_sweet_detail(
         id=sweet.id,
         name=sweet.name,
         price=sweet.price,
+        image_url=sweet.image_url,
         category=sweet.category,
         reviews=reviews
     )

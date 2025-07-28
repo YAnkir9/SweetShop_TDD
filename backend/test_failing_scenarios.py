@@ -6,88 +6,70 @@ import asyncio
 import sys
 sys.path.append('.')
 
-from fastapi import FastAPI
-from fastapi.testclient import TestClient
-from app.main import app
 
-def test_duplicate_registration():
-    """Test the exact scenario that fails in pytest"""
+import pytest
+import pytest_asyncio
+from httpx import AsyncClient
+
+from app.main import app
+from app.database import get_db, async_session
+
+
+
+@pytest_asyncio.fixture(autouse=True)
+async def override_get_db():
+    async def _get_test_db():
+        session = async_session()
+        try:
+            yield session
+        finally:
+            await session.close()
+    app.dependency_overrides[get_db] = _get_test_db
+    yield
+    app.dependency_overrides.clear()
+
+@pytest.mark.asyncio
+async def test_duplicate_registration():
     print("🔍 Testing duplicate registration scenario...")
-    
-    with TestClient(app) as client:
-        # Create unique user data
-        import uuid
-        unique_id = str(uuid.uuid4())[:8]
-        user_data = {
-            "username": f"duplicateuser_{unique_id}",
-            "email": f"duplicate_{unique_id}@example.com",
-            "password": "securepassword123"
-        }
-        
-        print(f"Testing with email: {user_data['email']}")
-        
+    import uuid
+    unique_id = str(uuid.uuid4())[:8]
+    user_data = {
+        "username": f"duplicateuser_{unique_id}",
+        "email": f"duplicate_{unique_id}@example.com",
+        "password": "securepassword123"
+    }
+    print(f"Testing with email: {user_data['email']}")
+    async with AsyncClient(app=app, base_url="http://test") as client:
         # First registration
         print("First registration...")
-        response1 = client.post("/api/auth/register", json=user_data)
+        response1 = await client.post("/api/auth/register", json=user_data)
         print(f"Response 1 status: {response1.status_code}")
-        if response1.status_code != 201:
-            print(f"Response 1 content: {response1.text}")
-            return False
-        
+        assert response1.status_code == 201, f"Response 1 content: {response1.text}"
         # Second registration with same email
         print("Second registration with same email...")
         user_data["username"] = f"different_{user_data['username']}"
-        response2 = client.post("/api/auth/register", json=user_data)
+        response2 = await client.post("/api/auth/register", json=user_data)
         print(f"Response 2 status: {response2.status_code}")
-        if response2.status_code != 400:
-            print(f"Response 2 content: {response2.text}")
-            return False
-        
+        assert response2.status_code == 400, f"Response 2 content: {response2.text}"
         response_data = response2.json()
-        if "already registered" not in response_data["detail"].lower():
-            print(f"Wrong error message: {response_data}")
-            return False
-        
+        assert "already registered" in response_data["detail"].lower(), f"Wrong error message: {response_data}"
         print("✅ Duplicate registration test PASSED!")
-        return True
 
-def test_invalid_login():
-    """Test the invalid login scenario"""
+
+
+@pytest.mark.asyncio
+async def test_invalid_login():
     print("\n🔍 Testing invalid login scenario...")
-    
-    with TestClient(app) as client:
-        # Test with nonexistent email
+    async with AsyncClient(app=app, base_url="http://test") as client:
         print("Testing nonexistent email...")
-        response = client.post("/api/auth/login", json={
+        response = await client.post("/api/auth/login", json={
             "email": "nonexistent@example.com",
             "password": "password123"
         })
-        
         print(f"Response status: {response.status_code}")
-        if response.status_code != 401:
-            print(f"Response content: {response.text}")
-            return False
-        
+        assert response.status_code == 401, f"Response content: {response.text}"
         response_data = response.json()
-        if "invalid credentials" not in response_data["detail"].lower():
-            print(f"Wrong error message: {response_data}")
-            return False
-        
+        assert "invalid credentials" in response_data["detail"].lower(), f"Wrong error message: {response_data}"
         print("✅ Invalid login test PASSED!")
-        return True
 
-if __name__ == "__main__":
-    print("🚀 Testing the specific failing scenarios directly...\n")
-    
-    duplicate_passed = test_duplicate_registration()
-    login_passed = test_invalid_login()
-    
-    print("\n📊 RESULTS:")
-    print(f"Duplicate registration test: {'✅ PASSED' if duplicate_passed else '❌ FAILED'}")
-    print(f"Invalid login test: {'✅ PASSED' if login_passed else '❌ FAILED'}")
-    
-    if duplicate_passed and login_passed:
-        print("\n🎉 ALL TESTS PASSED! The authentication logic works perfectly.")
-        print("The pytest failures are indeed due to async event loop issues, not code bugs.")
-    else:
-        print("\n⚠️ There may be actual logic issues that need to be addressed.")
+

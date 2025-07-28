@@ -42,9 +42,9 @@ async def seed():
         await session.refresh(customer_role)
 
         # Users
-        admin = User(username="admin_gj", email="admin@gujaratsweets.com", password_hash="hash", role_id=admin_role.id)
+        admin = User(username="admin_gj", email="admin@gujaratsweets.com", password_hash="hash123", role_id=admin_role.id)
         users = [
-            User(username=f"user{i}_gj", email=f"user{i}@gujaratsweets.com", password_hash="hash", role_id=customer_role.id)
+            User(username=f"user{i}_gj", email=f"user{i}@gujaratsweets.com", password_hash="hash123", role_id=customer_role.id)
             for i in range(1, 5)
         ]
         session.add(admin)
@@ -65,16 +65,16 @@ async def seed():
 
         # Sweets (English)
         sweets = [
-            Sweet(name="Kaju Katli", price=450.0, category_id=cat_dryfruit.id, image_url="sweet_images/kaju_katli.jpg"),
-            Sweet(name="Jalebi", price=220.0, category_id=cat_festival.id, image_url="sweet_images/jalebi.jpg"),
-            Sweet(name="Mohanthal", price=350.0, category_id=cat_traditional.id, image_url="sweet_images/mohanthal.jpg"),
-            Sweet(name="Basundi", price=300.0, category_id=cat_traditional.id, image_url="sweet_images/basundi.jpg"),
-            Sweet(name="Peda", price=180.0, category_id=cat_festival.id, image_url="sweet_images/peda.jpg"),
-            Sweet(name="Rasgulla", price=250.0, category_id=cat_festival.id, image_url="sweet_images/rasgulla.jpg"),
-            Sweet(name="Ghari", price=400.0, category_id=cat_traditional.id, image_url="sweet_images/ghari.jpg"),
-            Sweet(name="Shakarpara", price=160.0, category_id=cat_farsan.id, image_url="sweet_images/shakarpara.jpg"),
-            Sweet(name="Khaman", price=120.0, category_id=cat_farsan.id, image_url="sweet_images/khaman.jpg"),
-            Sweet(name="Surti Undhiyu", price=500.0, category_id=cat_farsan.id, image_url="sweet_images/surti_undhiyu.jpg"),
+            Sweet(name="Kaju Katli", price=450.0, category_id=cat_dryfruit.id, image_url="sweet_images/kaju_katli.jpg", is_deleted=False),
+            Sweet(name="Jalebi", price=220.0, category_id=cat_festival.id, image_url="sweet_images/jalebi.jpg", is_deleted=False),
+            Sweet(name="Mohanthal", price=350.0, category_id=cat_traditional.id, image_url="sweet_images/mohanthal.jpg", is_deleted=False),
+            Sweet(name="Basundi", price=300.0, category_id=cat_traditional.id, image_url="sweet_images/basundi.jpg", is_deleted=False),
+            Sweet(name="Peda", price=180.0, category_id=cat_festival.id, image_url="sweet_images/peda.jpg", is_deleted=False),
+            Sweet(name="Rasgulla", price=250.0, category_id=cat_festival.id, image_url="sweet_images/rasgulla.jpg", is_deleted=False),
+            Sweet(name="Ghari", price=400.0, category_id=cat_traditional.id, image_url="sweet_images/ghari.jpg", is_deleted=False),
+            Sweet(name="Shakarpara", price=160.0, category_id=cat_farsan.id, image_url="sweet_images/shakarpara.jpg", is_deleted=False),
+            Sweet(name="Khaman", price=120.0, category_id=cat_farsan.id, image_url="sweet_images/khaman.jpg", is_deleted=False),
+            Sweet(name="Surti Undhiyu", price=500.0, category_id=cat_farsan.id, image_url="sweet_images/surti_undhiyu.jpg", is_deleted=False),
         ]
         session.add_all(sweets)
         await session.commit()

@@ -38,6 +38,7 @@ class SweetResponse(BaseModel):
     id: int
     name: str
     price: float
+    image_url: Optional[str] = None
     category: CategoryResponse
     reviews: Optional[List[ReviewResponse]] = []
 
