@@ -9,7 +9,29 @@
 - Session persistence and error handling are robust.
 - All major backend and frontend tests pass.
 
-### Pending UI Tasks
+
+## 📸 Dashboard Screenshots
+
+Below are key screenshots demonstrating the dashboard features and UI flow:
+
+<div align="center">
+  <ol>
+    <li><b>Login Page</b><br><img src="../Screenshots/dashboard-login.png" width="500"/></li>
+    <li><b>Register Page</b><br><img src="../Screenshots/dashboard-register.png" width="500"/></li>
+    <li><b>Main Dashboard</b><br><img src="../Screenshots/dashboard-main.png" width="500"/></li>
+    <li><b>Admin - Sweets Management</b><br><img src="../Screenshots/dashboard-admin-sweets.png" width="500"/></li>
+    <li><b>Admin - Users Management</b><br><img src="../Screenshots/dashboard-admin-users.png" width="500"/></li>
+    <li><b>Admin - Stock Report</b><br><img src="../Screenshots/dashboard-admin-stock.png" width="500"/></li>
+    <li><b>Purchase Success Notification</b><br><img src="../Screenshots/dashboard-purchase-success.png" width="500"/></li>
+    <li><b>Purchase Failure Notification</b><br><img src="../Screenshots/dashboard-purchase-fail.png" width="500"/></li>
+    <li><b>Sold Out (Customer Only) Label</b><br><img src="../Screenshots/dashboard-soldout-customer.png" width="500"/></li>
+    <li><b>Session Expired Alert</b><br><img src="../Screenshots/dashboard-session-expired.png" width="500"/></li>
+    <li><b>Mobile View</b><br><img src="../Screenshots/dashboard-mobile-view.png" width="300"/></li>
+    <li><b>Profile Edit Page</b><br><img src="../Screenshots/dashboard-profile-edit.png" width="500"/></li>
+  </ol>
+</div>
+
+---
 
 #### Admin Side
 - Bulk user actions and advanced role management
